@@ -1,16 +1,19 @@
 version: "3.9"
 
 services:
-    web:
+    nginx:
         build: nginx
         ports:
           - 80:80
           - 443:443
         depends_on:
           - api
+        volumes:
+          - /etc/letsencrypt/live/smartwordhints.com/fullchain.pem:/etc/letsencrypt/live/smartwordhints.com/fullchain.pem
+          - /etc/letsencrypt/live/smartwordhints.com/privkey.pem:/etc/letsencrypt/live/smartwordhints.com/privkey.pem
 
     api:
-        build: smart-word-hints
+        build: smart-word-hints-api
         environment:
           - PORT=8080
         ports:
