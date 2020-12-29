@@ -11,7 +11,5 @@ services:
 
     api:
         build: smart-word-hints-api
-        environment:
-          - PORT=8081
         ports:
           - 8081:8081
