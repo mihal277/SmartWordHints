@@ -3,6 +3,7 @@ from typing import Optional, List, Tuple
 from nltk import FreqDist, tokenize
 from nltk.corpus import brown, wordnet
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field, validator
 
 VALID_LANG_CODES = ["en"]
@@ -77,3 +78,8 @@ def get_hints(request_body: WordHintsRequest):
             if hint is not None:
                 hints.append(hint)
     return {"hints": hints}
+
+
+@app.get("/")
+def main_get():
+    return RedirectResponse(url="/docs")
