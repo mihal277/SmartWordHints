@@ -8,7 +8,11 @@ from pydantic import BaseModel, Field, validator
 
 VALID_LANG_CODES = ["en"]
 
-app = FastAPI()
+app = FastAPI(
+    title="Smart Word Hints",
+    description="API for the browser extension displaying hints above difficult words",
+    version="0.0.1",
+)
 
 
 class HintsOptions(BaseModel):
