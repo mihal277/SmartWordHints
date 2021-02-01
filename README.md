@@ -16,9 +16,8 @@ sudo docker run --name smart-word-hints -p 8081:8081 --rm -d smart-word-hints
 
 Alternatively use:
 ```
-sudo ./build_local.sh
+sudo ./build_local.sh 8081
 ```
 
 The main API endpoint is available at `localhost:8081/api/get_hints`
 The API docs are available at `localhost:8081/docs`
-

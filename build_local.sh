@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEFAULTPORT=80
+DEFAULTPORT=8081
 PORT="${1:-$DEFAULTPORT}"
 
 (docker stop smart-word-hints || true) && \
