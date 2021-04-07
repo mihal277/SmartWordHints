@@ -1,12 +1,14 @@
-from typing import Optional, List, Tuple
+import dataclasses
+from typing import Optional
 
-from nltk import FreqDist, tokenize
-from nltk.corpus import brown, wordnet
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator
 
-VALID_LANG_CODES = ["en"]
+from constants import EN, PL
+from hints_providers import EnglishToEnglishHintsProvider
+
+VALID_LANG_PAIRS = [(EN, EN), (EN, PL)]
 
 app = FastAPI(
     title="Smart Word Hints",
@@ -16,19 +18,21 @@ app = FastAPI(
 
 
 class HintsOptions(BaseModel):
-    text_language: Optional[str] = "en"
-    hints_language: Optional[str] = "en"
+    text_language: Optional[str] = EN
+    hints_language: Optional[str] = EN
     difficulty: Optional[int] = Field(
         default=1000,
         description="Only show hints for words less common than this number",
         ge=0,
     )
 
-    @validator("text_language", "hints_language")
-    def is_valid_lang_code(cls, lang_code):
-        if lang_code not in VALID_LANG_CODES:
-            raise ValueError(f"Currently supported languages: {VALID_LANG_CODES}")
-        return lang_code
+    @root_validator
+    def are_valid_languages(cls, values):
+        text_lang = values["text_language"]
+        hints_lang = values["hints_language"]
+        if (text_lang, hints_lang) not in VALID_LANG_PAIRS:
+            raise ValueError(f"Currently supported language pairs: {VALID_LANG_PAIRS}")
+        return values
 
 
 class WordHintsRequest(BaseModel):
@@ -36,52 +40,20 @@ class WordHintsRequest(BaseModel):
     options: Optional[HintsOptions] = HintsOptions()
 
 
-words_freq_brown: FreqDist = FreqDist(brown.words())
-words_ranking: List[str] = [
-    freq[0] for freq in words_freq_brown.most_common(len(words_freq_brown))
-]
-
-
-def get_tokens_with_spans(text: str) -> List[Tuple[int, int]]:
-    tokens = tokenize.word_tokenize(text)
-    offset = 0
-    for token in tokens:
-        offset = text.find(token, offset)
-        yield token, offset, offset + len(token)
-        offset += len(token)
-
-
-def get_hint(word: str, start: int, end: int) -> Optional[dict]:
-    try:
-        definition = wordnet.synsets(word)[0].definition()
-    except IndexError:
-        return None
-
-    try:
-        ranking = words_ranking.index(word)
-    except ValueError:
-        ranking = None
-
-    return {
-        "word": word,
-        "start": start,
-        "end": end,
-        "ranking": ranking,
-        "definition": definition,
-    }
+en_to_en_hints_provider = EnglishToEnglishHintsProvider()
 
 
 @app.post("/api/get_hints")
 def get_hints(request_body: WordHintsRequest):
-    most_common = words_ranking[: request_body.options.difficulty]
-    hints = []
-    tokens_with_spans = list(get_tokens_with_spans(request_body.text))
-    for word, start, end in tokens_with_spans:
-        if word not in most_common:
-            hint = get_hint(word, start, end)
-            if hint is not None:
-                hints.append(hint)
-    return {"hints": hints}
+    hints = en_to_en_hints_provider.get_hints(
+        request_body.text, request_body.options.difficulty
+    )
+    return {"hints": [dataclasses.asdict(hint) for hint in hints]}
+
+
+@app.get("/api/available_languages")
+def available_languages():
+    return VALID_LANG_PAIRS
 
 
 @app.get("/")
