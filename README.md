@@ -19,5 +19,20 @@ Alternatively use:
 sudo ./build_local.sh 8081
 ```
 
-The main API endpoint is available at `localhost:8081/api/get_hints`
-The API docs are available at `localhost:8081/docs`
+### Running the API locally without Docker
+
+```
+(cd smart-word-hints-api/app && uvicorn main:app --reload --port 8081)
+```
+
+### Urls
+
+After running the above commands:
+* the main API endpoint is available at `localhost:8081/api/get_hints`
+* the API docs are available at `localhost:8081/docs`
+
+## Testing
+
+```
+./run_tests.sh
+```
