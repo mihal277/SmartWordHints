@@ -4,9 +4,9 @@ from nltk import FreqDist, tokenize
 from nltk.corpus import brown, wordnet
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator
 
-VALID_LANG_CODES = ["en"]
+VALID_LANG_PAIRS = [("en", "en"), ("en", "pl")]
 
 app = FastAPI(
     title="Smart Word Hints",
@@ -24,11 +24,13 @@ class HintsOptions(BaseModel):
         ge=0,
     )
 
-    @validator("text_language", "hints_language")
-    def is_valid_lang_code(cls, lang_code):
-        if lang_code not in VALID_LANG_CODES:
-            raise ValueError(f"Currently supported languages: {VALID_LANG_CODES}")
-        return lang_code
+    @root_validator
+    def are_valid_languages(cls, values):
+        text_lang = values["text_language"]
+        hints_lang = values["hints_language"]
+        if (text_lang, hints_lang) not in VALID_LANG_PAIRS:
+            raise ValueError(f"Currently supported language pairs: {VALID_LANG_PAIRS}")
+        return values
 
 
 class WordHintsRequest(BaseModel):
@@ -82,6 +84,11 @@ def get_hints(request_body: WordHintsRequest):
             if hint is not None:
                 hints.append(hint)
     return {"hints": hints}
+
+
+@app.get("/api/available_languages")
+def available_languages():
+    return VALID_LANG_PAIRS
 
 
 @app.get("/")
