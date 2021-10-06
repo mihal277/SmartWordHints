@@ -4,29 +4,29 @@
 #
 #    pip-compile
 #
-asgiref==3.3.4
+asgiref==3.4.1
     # via uvicorn
 click==8.0.1
     # via
     #   nltk
     #   uvicorn
-fastapi==0.65.2
+fastapi==0.68.2
     # via -r requirements.in
 h11==0.12.0
     # via uvicorn
 joblib==1.0.1
     # via nltk
-nltk==3.6.2
+nltk==3.6.4
     # via -r requirements.in
 pydantic==1.8.2
     # via fastapi
-regex==2021.4.4
+regex==2021.9.30
     # via nltk
 starlette==0.14.2
     # via fastapi
-tqdm==4.61.1
+tqdm==4.62.3
     # via nltk
-typing-extensions==3.10.0.0
+typing-extensions==3.10.0.2
     # via pydantic
-uvicorn==0.14.0
+uvicorn==0.15.0
     # via -r requirements.in
