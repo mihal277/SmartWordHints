@@ -33,6 +33,12 @@ After running the above commands:
 
 ## Testing
 
+To run tests:
 ```
 ./run_tests.sh
+```
+
+To make sure tests are automatically run before push:
+```
+git config core.hooksPath hooks/
 ```
