@@ -24,6 +24,12 @@ class EnglishToEnglishHintsProvider:
         self.tokenize = tokenize.word_tokenize
         self.tag_pos = pos_tag
 
+        self._ensure_corpus_loaded()
+
+    def _ensure_corpus_loaded(self):
+        print("Loading the wordnet corpus...")
+        wordnet.ensure_loaded()
+
     @staticmethod
     def load_words_frequency_ranking_en() -> List[str]:
         with open(EN_FREQUENCY_RANKING_PATH, "r") as f:
@@ -86,3 +92,9 @@ class EnglishToEnglishHintsProvider:
                 if hint is not None:
                     hints.append(hint)
         return hints
+
+
+# https://stackoverflow.com/questions/27433370/what-would-cause-wordnetcorpusreader-to-have-no-attribute-lazycorpusloader
+# hp = EnglishToEnglishHintsProvider()
+# for i in range(10000):
+#     print(hp.get_hints("I want to do this very much.", 10))
