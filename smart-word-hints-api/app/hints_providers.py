@@ -1,11 +1,17 @@
 from dataclasses import dataclass
+from itertools import chain
 from typing import List, Tuple, Optional, Generator, Union
 
 from nltk import tokenize, pos_tag
 from nltk.corpus import wordnet
+from wn.synset import Synset
 from nltk.stem import WordNetLemmatizer
 
-from constants import EN_FREQUENCY_RANKING_PATH, LEMMATIZABLE_POS_TO_POS_SIMPLE
+from constants import (
+    EN_FREQUENCY_RANKING_PATH,
+    LEMMATIZABLE_POS_TO_POS_SIMPLE,
+    ADJECTIVES,
+)
 
 
 @dataclass
@@ -15,6 +21,7 @@ class Hint:
     end_position: int
     ranking: int
     definition: int
+    part_of_speech: str
 
 
 class EnglishToEnglishHintsProvider:
@@ -23,12 +30,15 @@ class EnglishToEnglishHintsProvider:
         self.lemmatizer = WordNetLemmatizer()
         self.tokenize = tokenize.word_tokenize
         self.tag_pos = pos_tag
+        self.synsets = self.load_synsets()
 
-        self._ensure_corpus_loaded()
-
-    def _ensure_corpus_loaded(self):
-        print("Loading the wordnet corpus...")
-        wordnet.ensure_loaded()
+    @staticmethod
+    def load_synsets():
+        print("Loading synsets...")
+        lemmas_in_wordnet = set(
+            chain(*[x.lemma_names() for x in wordnet.all_synsets()])
+        )
+        return {lemma: wordnet.synsets(lemma) for lemma in lemmas_in_wordnet}
 
     @staticmethod
     def load_words_frequency_ranking_en() -> List[str]:
@@ -64,10 +74,20 @@ class EnglishToEnglishHintsProvider:
             return [(self.get_lemma(word, pos), pos) for word, pos in words_with_pos]
         return [self.get_lemma(word, pos) for word, pos in words_with_pos]
 
+    @staticmethod
+    def same_pos(pos1: str, pos2: str) -> bool:
+        if pos1 in ADJECTIVES:
+            return pos2 in ADJECTIVES
+        return pos1 == pos2
+
+    def get_synset(self, word: str, pos: str) -> List[Synset]:
+        synsets = self.synsets.get(word, [])
+        return [synset for synset in synsets if self.same_pos(synset.pos(), pos)]
+
     def get_hint(self, word: str, start: int, end: int, pos: str) -> Optional[Hint]:
         try:
             simple_pos = LEMMATIZABLE_POS_TO_POS_SIMPLE.get(pos)
-            definition = wordnet.synsets(word, simple_pos)[0].definition()
+            definition = self.get_synset(word, simple_pos)[0].definition()
             ranking = self.freq_ranking.index(word)
             return Hint(
                 word=word,
@@ -75,8 +95,9 @@ class EnglishToEnglishHintsProvider:
                 end_position=end,
                 ranking=ranking,
                 definition=definition,
+                part_of_speech=pos,
             )
-        except (IndexError, ValueError):
+        except (IndexError, KeyError):
             return None
 
     def get_hints(self, article: str, difficulty: int) -> List[Hint]:
@@ -92,9 +113,3 @@ class EnglishToEnglishHintsProvider:
                 if hint is not None:
                     hints.append(hint)
         return hints
-
-
-# https://stackoverflow.com/questions/27433370/what-would-cause-wordnetcorpusreader-to-have-no-attribute-lazycorpusloader
-# hp = EnglishToEnglishHintsProvider()
-# for i in range(10000):
-#     print(hp.get_hints("I want to do this very much.", 10))
