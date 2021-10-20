@@ -97,7 +97,7 @@ class EnglishToEnglishHintsProvider:
                 definition=definition,
                 part_of_speech=pos,
             )
-        except (IndexError, KeyError):
+        except (ValueError, IndexError):
             return None
 
     def get_hints(self, article: str, difficulty: int) -> List[Hint]:
@@ -113,3 +113,8 @@ class EnglishToEnglishHintsProvider:
                 if hint is not None:
                     hints.append(hint)
         return hints
+
+
+hp = EnglishToEnglishHintsProvider()
+print(hp.synsets["sync"])
+hp.get_hints("It's started to sync", 1000)
