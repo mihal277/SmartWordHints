@@ -1,23 +1,26 @@
+from wn import ADJ, ADJ_SAT, VERB, NOUN, ADV
+
 EN_FREQUENCY_RANKING_PATH = "ranking_common_en.txt"
 
 EN = "english"
 PL = "polish"
 
+ADJECTIVES = {ADJ, ADJ_SAT}
 
 LEMMATIZABLE_POS_TO_POS_SIMPLE = {
-    "JJ": "a",  # adjective or numeral, ordinal
-    "JJR": "a",  # adjective, comparative
-    "JJS": "a",  # adjective, superlative
-    "RB": "r",  # adverb
-    "RBR": "r",  # adverb, comparative
-    "RBS": "r",  # adverb, superlative
-    "NN": "n",  # noun, common, singular or mass
-    "NNP": "n",  # noun, proper, singular
-    "NNS": "n",  # noun, common, plural
-    "VB": "v",  # verb, base form
-    "VBD": "v",  # verb, past tense
-    "VBG": "v",  # verb, present participle or gerund
-    "VBN": "v",  # verb, past participle
-    "VBP": "v",  # verb, present tense, not 3rd person singular
-    "VBZ": "v",  # verb, present tense, 3rd person singular
+    "JJ": ADJ,  # adjective or numeral, ordinal
+    "JJR": ADJ,  # adjective, comparative
+    "JJS": ADJ,  # adjective, superlative
+    "RB": ADV,  # adverb
+    "RBR": ADV,  # adverb, comparative
+    "RBS": ADV,  # adverb, superlative
+    "NN": NOUN,  # noun, common, singular or mass
+    "NNP": NOUN,  # noun, proper, singular
+    "NNS": NOUN,  # noun, common, plural
+    "VB": VERB,  # verb, base form
+    "VBD": VERB,  # verb, past tense
+    "VBG": VERB,  # verb, present participle or gerund
+    "VBN": VERB,  # verb, past participle
+    "VBP": VERB,  # verb, present tense, not 3rd person singular
+    "VBZ": VERB,  # verb, present tense, 3rd person singular
 }
