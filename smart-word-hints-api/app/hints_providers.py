@@ -113,8 +113,3 @@ class EnglishToEnglishHintsProvider:
                 if hint is not None:
                     hints.append(hint)
         return hints
-
-
-hp = EnglishToEnglishHintsProvider()
-print(hp.synsets["sync"])
-hp.get_hints("It's started to sync", 1000)
