@@ -1,12 +1,11 @@
 import dataclasses
 from typing import Optional
 
+from constants import EN, PL
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel, Field, root_validator
-
-from constants import EN, PL
 from hints_providers import EnglishToEnglishHintsProvider
+from pydantic import BaseModel, Field, root_validator
 
 VALID_LANG_PAIRS = [(EN, EN), (EN, PL)]
 
