@@ -1,17 +1,16 @@
 from dataclasses import dataclass
 from itertools import chain
-from typing import List, Tuple, Optional, Generator, Union
-
-from nltk import tokenize, pos_tag
-from nltk.corpus import wordnet
-from wn.synset import Synset
-from nltk.stem import WordNetLemmatizer
+from typing import Generator, List, Optional, Tuple, Union
 
 from constants import (
+    ADJECTIVES,
     EN_FREQUENCY_RANKING_PATH,
     LEMMATIZABLE_POS_TO_POS_SIMPLE,
-    ADJECTIVES,
 )
+from nltk import pos_tag, tokenize
+from nltk.corpus import wordnet
+from nltk.stem import WordNetLemmatizer
+from wn.synset import Synset
 
 
 @dataclass

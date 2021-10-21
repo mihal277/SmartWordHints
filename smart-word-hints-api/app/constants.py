@@ -1,4 +1,4 @@
-from wn import ADJ, ADJ_SAT, VERB, NOUN, ADV
+from wn import ADJ, ADJ_SAT, ADV, NOUN, VERB
 
 EN_FREQUENCY_RANKING_PATH = "ranking_common_en.txt"
 
