@@ -2,27 +2,27 @@
 
 ## API
 
-### Running the API locally using Docker
-
-First, build the API image:
+### Running the API locally inside Docker
 ```
-sudo docker build -t smart-word-hints smart-word-hints-api/
-```
-
-Then, run the image:
-```
-sudo docker run --name smart-word-hints -p 8081:8081 --rm -d smart-word-hints
-```
-
-Alternatively use:
-```
-sudo ./build_local.sh 8081
+sudo ./scripts/run_local_docker.sh 8081
 ```
 
 ### Running the API locally without Docker
-
+First, create a virtualenv and activate it:
 ```
-(cd smart-word-hints-api/app && uvicorn main:app --reload --port 8081)
+virtualenv -p python3.9 venv
+source venv/bin/activate
+```
+
+Install the requirements:
+```
+pip install -r smart_word_hints_api/requirements/requirements.txt
+python -m nltk.downloader $(cat smart_word_hints_api/requirements/nltk_modules.txt)
+```
+
+Finally, run the API:
+```
+./scripts/run_local.sh
 ```
 
 ### Urls
@@ -33,7 +33,7 @@ After running the above commands:
 
 ## Testing
 
-To run tests:
+To run tests outside:
 ```
 ./run_tests.sh
 ```

@@ -10,4 +10,4 @@ services:
           - api
 
     api:
-        build: smart-word-hints-api
+        build: smart_word_hints_api

@@ -1,13 +1,14 @@
 import dataclasses
 from typing import Optional
 
-from constants import EN, PL
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from hints_providers import EnglishToEnglishHintsProvider
 from pydantic import BaseModel, Field, root_validator
 
-VALID_LANG_PAIRS = [(EN, EN), (EN, PL)]
+from smart_word_hints_api.app.constants import EN
+from smart_word_hints_api.app.hints_providers import EnglishToEnglishHintsProvider
+
+VALID_LANG_PAIRS = [(EN, EN)]
 
 app = FastAPI(
     title="Smart Word Hints",

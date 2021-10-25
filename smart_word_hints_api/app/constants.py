@@ -1,6 +1,6 @@
-from wn import ADJ, ADJ_SAT, ADV, NOUN, VERB
+from nltk.corpus.reader import ADJ, ADJ_SAT, ADV, NOUN, VERB
 
-EN_FREQUENCY_RANKING_PATH = "ranking_common_en.txt"
+EN_FREQUENCY_RANKING_PATH = "smart_word_hints_api/app/ranking_common_en.txt"
 
 EN = "english"
 PL = "polish"
