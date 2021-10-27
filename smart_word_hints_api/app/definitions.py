@@ -12,7 +12,7 @@ from smart_word_hints_api.app.difficulty_rankings import DifficultyRanking
 
 
 class DefinitionProviderEN:
-    MAX_REASONABLE_DEFINITION_LENGTH = 50
+    MAX_REASONABLE_DEFINITION_LENGTH: int = 50
 
     def __init__(
         self,
