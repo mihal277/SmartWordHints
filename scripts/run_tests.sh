@@ -2,11 +2,16 @@
 
 set -e
 
+echo "----- Running python tests -----"
+
 echo "----- Running black - Python code formatter -----"
-black . --check
+black smart_word_hints_api --check
 
 echo "----- Running isort - utility to sort imports -----"
-isort . --profile black --check
+isort smart_word_hints_api --check
+
+echo "----- Running mypy - static type checker -----"
+mypy smart_word_hints_api
 
 echo "----- Running pytest -----"
-pytest .
+pytest smart_word_hints_api

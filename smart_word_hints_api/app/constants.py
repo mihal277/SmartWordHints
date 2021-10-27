@@ -1,13 +1,15 @@
+from typing import Dict, Set
+
 from nltk.corpus.reader import ADJ, ADJ_SAT, ADV, NOUN, VERB
 
-EN_FREQUENCY_RANKING_PATH = "smart_word_hints_api/app/ranking_common_en.txt"
+EN_FREQUENCY_RANKING_PATH: str = "smart_word_hints_api/app/ranking_common_en.txt"
 
-EN = "english"
-PL = "polish"
+EN: str = "english"
+PL: str = "polish"
 
-ADJECTIVES = {ADJ, ADJ_SAT}
+ADJECTIVES: Set[str] = {ADJ, ADJ_SAT}
 
-LEMMATIZABLE_POS_TO_POS_SIMPLE = {
+LEMMATIZABLE_POS_TO_POS_SIMPLE: Dict[str, str] = {
     "JJ": ADJ,  # adjective or numeral, ordinal
     "JJR": ADJ,  # adjective, comparative
     "JJS": ADJ,  # adjective, superlative

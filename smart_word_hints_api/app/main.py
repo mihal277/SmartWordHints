@@ -46,7 +46,7 @@ en_to_en_hints_provider = EnglishToEnglishHintsProvider()
 @app.post("/api/get_hints")
 def get_hints(request_body: WordHintsRequest):
     hints = en_to_en_hints_provider.get_hints(
-        request_body.text, request_body.options.difficulty
+        request_body.text, request_body.options.difficulty  # type: ignore
     )
     return {"hints": [dataclasses.asdict(hint) for hint in hints]}
 
