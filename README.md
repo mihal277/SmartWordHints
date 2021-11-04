@@ -4,7 +4,7 @@
 
 ### Running the API locally inside Docker
 ```
-sudo ./scripts/run_local_docker.sh 8081
+./scripts/run_local_docker.sh 8081
 ```
 
 ### Running the API locally without Docker
@@ -33,9 +33,14 @@ After running the above commands:
 
 ## Testing
 
-To run tests outside:
+To run tests without Docker:
 ```
-./run_tests.sh
+./scripts/run_api_tests.sh
+```
+
+To run tests in Docker:
+```
+./scripts/run_api_tests_docker.sh
 ```
 
 To make sure tests are automatically run before push:
