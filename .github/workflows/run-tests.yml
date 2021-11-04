@@ -1,0 +1,12 @@
+name: Running tests in Docker
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  build-and-run-tests:
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v2
+     - name: Build and run tests
+       run: ./scripts/run_api_tests_docker.sh
