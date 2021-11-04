@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 DEFAULTPORT=8081
 PORT="${1:-$DEFAULTPORT}"
