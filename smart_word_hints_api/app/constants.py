@@ -9,7 +9,7 @@ PL: str = "polish"
 
 ADJECTIVES: Set[str] = {ADJ, ADJ_SAT}
 
-LEMMATIZABLE_POS_TO_POS_SIMPLE: Dict[str, str] = {
+LEMMATIZABLE_EN_POS_TO_POS_SIMPLE: Dict[str, str] = {
     "JJ": ADJ,  # adjective or numeral, ordinal
     "JJR": ADJ,  # adjective, comparative
     "JJS": ADJ,  # adjective, superlative
@@ -26,3 +26,5 @@ LEMMATIZABLE_POS_TO_POS_SIMPLE: Dict[str, str] = {
     "VBP": VERB,  # verb, present tense, not 3rd person singular
     "VBZ": VERB,  # verb, present tense, 3rd person singular
 }
+
+UNIVERSAL_POS_VERB = "VERB"

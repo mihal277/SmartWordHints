@@ -12,16 +12,38 @@ attrs==21.2.0
     # via pytest
 black==21.9b0
     # via -r dev_requirements.in
+blis==0.7.5
+    # via
+    #   -r requirements.txt
+    #   spacy
+    #   thinc
+catalogue==2.0.6
+    # via
+    #   -r requirements.txt
+    #   spacy
+    #   srsly
+    #   thinc
 certifi==2021.10.8
-    # via requests
+    # via
+    #   -r requirements.txt
+    #   requests
 charset-normalizer==2.0.7
-    # via requests
+    # via
+    #   -r requirements.txt
+    #   requests
 click==8.0.1
     # via
     #   -r requirements.txt
     #   black
     #   nltk
+    #   typer
     #   uvicorn
+cymem==2.0.6
+    # via
+    #   -r requirements.txt
+    #   preshed
+    #   spacy
+    #   thinc
 fastapi==0.68.2
     # via -r requirements.txt
 flake8==4.0.1
@@ -31,17 +53,33 @@ h11==0.12.0
     #   -r requirements.txt
     #   uvicorn
 idna==3.3
-    # via requests
+    # via
+    #   -r requirements.txt
+    #   requests
 iniconfig==1.1.1
     # via pytest
 isort==5.9.3
     # via -r dev_requirements.in
+jinja2==3.0.3
+    # via
+    #   -r requirements.txt
+    #   spacy
 joblib==1.0.1
     # via
     #   -r requirements.txt
     #   nltk
+markupsafe==2.0.1
+    # via
+    #   -r requirements.txt
+    #   jinja2
 mccabe==0.6.1
     # via flake8
+murmurhash==1.0.6
+    # via
+    #   -r requirements.txt
+    #   preshed
+    #   spacy
+    #   thinc
 mypy==0.910
     # via -r dev_requirements.in
 mypy-extensions==0.4.3
@@ -50,14 +88,32 @@ mypy-extensions==0.4.3
     #   mypy
 nltk==3.6.4
     # via -r requirements.txt
-packaging==21.0
-    # via pytest
+numpy==1.21.4
+    # via
+    #   -r requirements.txt
+    #   blis
+    #   spacy
+    #   thinc
+packaging==21.2
+    # via
+    #   -r requirements.txt
+    #   pytest
+    #   spacy
 pathspec==0.9.0
     # via black
+pathy==0.6.1
+    # via
+    #   -r requirements.txt
+    #   spacy
 platformdirs==2.4.0
     # via black
 pluggy==1.0.0
     # via pytest
+preshed==3.0.6
+    # via
+    #   -r requirements.txt
+    #   spacy
+    #   thinc
 py==1.10.0
     # via pytest
 pycodestyle==2.8.0
@@ -66,10 +122,14 @@ pydantic==1.8.2
     # via
     #   -r requirements.txt
     #   fastapi
+    #   spacy
+    #   thinc
 pyflakes==2.4.0
     # via flake8
-pyparsing==3.0.1
-    # via packaging
+pyparsing==2.4.7
+    # via
+    #   -r requirements.txt
+    #   packaging
 pytest==6.2.5
     # via -r dev_requirements.in
 regex==2021.9.30
@@ -78,11 +138,33 @@ regex==2021.9.30
     #   black
     #   nltk
 requests==2.26.0
-    # via -r dev_requirements.in
+    # via
+    #   -r dev_requirements.in
+    #   -r requirements.txt
+    #   spacy
+smart-open==5.2.1
+    # via
+    #   -r requirements.txt
+    #   pathy
+spacy==3.1.4
+    # via -r requirements.txt
+spacy-legacy==3.0.8
+    # via
+    #   -r requirements.txt
+    #   spacy
+srsly==2.4.2
+    # via
+    #   -r requirements.txt
+    #   spacy
+    #   thinc
 starlette==0.14.2
     # via
     #   -r requirements.txt
     #   fastapi
+thinc==8.0.13
+    # via
+    #   -r requirements.txt
+    #   spacy
 toml==0.10.2
     # via
     #   mypy
@@ -93,6 +175,12 @@ tqdm==4.62.3
     # via
     #   -r requirements.txt
     #   nltk
+    #   spacy
+typer==0.4.0
+    # via
+    #   -r requirements.txt
+    #   pathy
+    #   spacy
 typing-extensions==3.10.0.2
     # via
     #   -r requirements.txt
@@ -100,6 +188,16 @@ typing-extensions==3.10.0.2
     #   mypy
     #   pydantic
 urllib3==1.26.7
-    # via requests
+    # via
+    #   -r requirements.txt
+    #   requests
 uvicorn==0.15.0
     # via -r requirements.txt
+wasabi==0.8.2
+    # via
+    #   -r requirements.txt
+    #   spacy
+    #   thinc
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
