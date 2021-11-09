@@ -6,9 +6,11 @@ from nltk.corpus.reader import Synset
 
 from smart_word_hints_api.app.constants import (
     ADJECTIVES,
-    LEMMATIZABLE_POS_TO_POS_SIMPLE,
+    LEMMATIZABLE_EN_POS_TO_POS_SIMPLE,
 )
 from smart_word_hints_api.app.difficulty_rankings import DifficultyRanking
+from smart_word_hints_api.app.text_holder import TextHolderEN
+from smart_word_hints_api.app.token_wrappers import TokenEN
 
 
 class DefinitionProviderEN:
@@ -56,20 +58,22 @@ class DefinitionProviderEN:
                 return synonym
         return None
 
-    def _get_disambiguated_synset(self, word: str, pos: str, article: str) -> Synset:
-        simple_pos = LEMMATIZABLE_POS_TO_POS_SIMPLE[pos]
+    def _get_disambiguated_synset(self, token: TokenEN, text: TextHolderEN) -> Synset:
+        simple_pos = LEMMATIZABLE_EN_POS_TO_POS_SIMPLE[token.tag]
         #  TODO: what about multithreading?
         # return lesk(article.split(), word, pos=simple_pos)
-        return self._get_synsets(word, simple_pos)[0]
+        return self._get_synsets(token.lemma, simple_pos)[0]
 
     def get_definition(
-        self, word: str, pos: str, article: str, difficulty: int
+        self, token: TokenEN, text: TextHolderEN, difficulty: int
     ) -> Optional[str]:
         try:
-            synset = self._get_disambiguated_synset(word, pos, article)
+            synset = self._get_disambiguated_synset(token, text)
             definition = synset.definition()
             if len(definition) > self.max_reasonable_length:
-                easy_synonym = self._get_synonym_if_easy(word, synset, difficulty)
+                easy_synonym = self._get_synonym_if_easy(
+                    token.lemma, synset, difficulty
+                )
                 if easy_synonym is not None:
                     return easy_synonym
             return definition

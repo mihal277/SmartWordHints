@@ -7,10 +7,14 @@ ENV PORT=8081
 ENV MODULE_NAME=smart_word_hints_api.app.main
 
 COPY requirements/requirements.txt /tmp/
-RUN pip install --user -r /tmp/requirements.txt
-
 COPY requirements/nltk_modules.txt /tmp/
+COPY requirements/spacy_modules.txt /tmp/
+
+RUN pip install --no-cache-dir -U pip setuptools wheel
+RUN pip install --no-cache-dir --user -r /tmp/requirements.txt
+
 RUN python -m nltk.downloader $(cat /tmp/nltk_modules.txt)
+RUN python -m spacy download $(cat /tmp/spacy_modules.txt)
 
 COPY ./app /app/smart_word_hints_api/app
 COPY ./__init__.py /app/smart_word_hints_api/__init__.py
