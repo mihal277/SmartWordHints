@@ -4,13 +4,17 @@
 #
 #    pip-compile dev_requirements.in
 #
+anyio==3.3.4
+    # via
+    #   -r requirements.txt
+    #   starlette
 asgiref==3.4.1
     # via
     #   -r requirements.txt
     #   uvicorn
 attrs==21.2.0
     # via pytest
-black==21.9b0
+black==21.10b0
     # via -r dev_requirements.in
 blis==0.7.5
     # via
@@ -31,7 +35,7 @@ charset-normalizer==2.0.7
     # via
     #   -r requirements.txt
     #   requests
-click==8.0.1
+click==8.0.3
     # via
     #   -r requirements.txt
     #   black
@@ -44,7 +48,7 @@ cymem==2.0.6
     #   preshed
     #   spacy
     #   thinc
-fastapi==0.68.2
+fastapi==0.70.0
     # via -r requirements.txt
 flake8==4.0.1
     # via -r dev_requirements.in
@@ -55,16 +59,17 @@ h11==0.12.0
 idna==3.3
     # via
     #   -r requirements.txt
+    #   anyio
     #   requests
 iniconfig==1.1.1
     # via pytest
-isort==5.9.3
+isort==5.10.1
     # via -r dev_requirements.in
 jinja2==3.0.3
     # via
     #   -r requirements.txt
     #   spacy
-joblib==1.0.1
+joblib==1.1.0
     # via
     #   -r requirements.txt
     #   nltk
@@ -86,12 +91,16 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-nltk==3.6.4
-    # via -r requirements.txt
+nltk==3.6.5
+    # via
+    #   -r requirements.txt
+    #   pywsd
 numpy==1.21.4
     # via
     #   -r requirements.txt
     #   blis
+    #   pandas
+    #   pywsd
     #   spacy
     #   thinc
 packaging==21.2
@@ -99,6 +108,10 @@ packaging==21.2
     #   -r requirements.txt
     #   pytest
     #   spacy
+pandas==1.3.4
+    # via
+    #   -r requirements.txt
+    #   pywsd
 pathspec==0.9.0
     # via black
 pathy==0.6.1
@@ -114,7 +127,7 @@ preshed==3.0.6
     #   -r requirements.txt
     #   spacy
     #   thinc
-py==1.10.0
+py==1.11.0
     # via pytest
 pycodestyle==2.8.0
     # via flake8
@@ -132,7 +145,17 @@ pyparsing==2.4.7
     #   packaging
 pytest==6.2.5
     # via -r dev_requirements.in
-regex==2021.9.30
+python-dateutil==2.8.2
+    # via
+    #   -r requirements.txt
+    #   pandas
+pytz==2021.3
+    # via
+    #   -r requirements.txt
+    #   pandas
+pywsd==1.2.4
+    # via -r requirements.txt
+regex==2021.11.10
     # via
     #   -r requirements.txt
     #   black
@@ -142,10 +165,19 @@ requests==2.26.0
     #   -r dev_requirements.in
     #   -r requirements.txt
     #   spacy
+six==1.16.0
+    # via
+    #   -r requirements.txt
+    #   python-dateutil
+    #   pywsd
 smart-open==5.2.1
     # via
     #   -r requirements.txt
     #   pathy
+sniffio==1.2.0
+    # via
+    #   -r requirements.txt
+    #   anyio
 spacy==3.1.4
     # via -r requirements.txt
 spacy-legacy==3.0.8
@@ -157,7 +189,7 @@ srsly==2.4.2
     #   -r requirements.txt
     #   spacy
     #   thinc
-starlette==0.14.2
+starlette==0.16.0
     # via
     #   -r requirements.txt
     #   fastapi
@@ -181,7 +213,7 @@ typer==0.4.0
     #   -r requirements.txt
     #   pathy
     #   spacy
-typing-extensions==3.10.0.2
+typing-extensions==4.0.0
     # via
     #   -r requirements.txt
     #   black
@@ -198,6 +230,10 @@ wasabi==0.8.2
     #   -r requirements.txt
     #   spacy
     #   thinc
+wn==0.0.23
+    # via
+    #   -r requirements.txt
+    #   pywsd
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -14,16 +14,16 @@ def test_only_english_to_english_is_returned_as_supported():
 def test_hints_endpoint__simple_sentence():
     response = client.post(
         "/api/get_hints",
-        json={"text": "A very big pie.", "options": {"difficulty": 1000}},
+        json={"text": "A very big smile.", "options": {"difficulty": 600}},
     )
     expected_response = {
         "hints": [
             {
-                "word": "pie",
+                "word": "smile",
                 "start_position": 11,
-                "end_position": 14,
-                "ranking": 4524,
-                "definition": "dish baked in pastry-lined pan often with a pastry top",
+                "end_position": 16,
+                "ranking": 676,
+                "definition": "a facial expression characterized by turning up the corners of the mouth",  # noqa: E501
                 "part_of_speech": "NN",
             }
         ]
