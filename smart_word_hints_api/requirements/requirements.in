@@ -4,4 +4,4 @@ nltk>=3.6.5
 spacy<3.2.0
 pywsd
 wn==0.0.23
-  # this version is required by pywsd by pip-compile installs the newest one
+  # this version is required by pywsd but pip-compile installs the newest one
