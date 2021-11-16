@@ -4,6 +4,9 @@ set -e
 
 echo "----- Running python tests -----"
 
+echo "----- Running flake8 - Python linter -----"
+flake8 smart_word_hints_api
+
 echo "----- Running black - Python code formatter -----"
 black smart_word_hints_api --check
 

@@ -1,13 +1,10 @@
-from itertools import chain
-from typing import Dict, List, Optional, Set
+import re
+from typing import Optional
 
-from nltk.corpus import wordnet
 from nltk.corpus.reader import Synset
+from pywsd.lesk import adapted_lesk
 
-from smart_word_hints_api.app.constants import (
-    ADJECTIVES,
-    LEMMATIZABLE_EN_POS_TO_POS_SIMPLE,
-)
+from smart_word_hints_api.app.constants import LEMMATIZABLE_EN_POS_TO_POS_SIMPLE
 from smart_word_hints_api.app.difficulty_rankings import DifficultyRanking
 from smart_word_hints_api.app.text_holder import TextHolderEN
 from smart_word_hints_api.app.token_wrappers import TokenEN
@@ -21,31 +18,10 @@ class DefinitionProviderEN:
         difficulty_ranking: DifficultyRanking,
         max_reasonable_length: Optional[int] = None,
     ):
-        self.synsets = self._load_synsets()
         self.difficulty_ranking = difficulty_ranking
         self.max_reasonable_length = (
             max_reasonable_length or self.MAX_REASONABLE_DEFINITION_LENGTH
         )
-
-    @staticmethod
-    def _load_synsets() -> Dict[str, List[Synset]]:
-        print("Loading synsets...")
-        lemmas_in_wordnet: Set[str] = set(
-            chain(*[x.lemma_names() for x in wordnet.all_synsets()])
-        )
-        return {lemma: wordnet.synsets(lemma) for lemma in lemmas_in_wordnet}
-
-    @staticmethod
-    def _same_pos(pos1: str, pos2: str) -> bool:
-        if pos1 in ADJECTIVES:
-            return pos2 in ADJECTIVES
-        return pos1 == pos2
-
-    def _get_synsets(self, word: str, pos_simple: str) -> List[Synset]:
-        synsets = self.synsets.get(word, [])
-        return [
-            synset for synset in synsets if self._same_pos(synset.pos(), pos_simple)
-        ]
 
     def _get_synonym_if_easy(
         self, word: str, synset: Synset, difficulty: int
@@ -60,22 +36,39 @@ class DefinitionProviderEN:
 
     def _get_disambiguated_synset(self, token: TokenEN, text: TextHolderEN) -> Synset:
         simple_pos = LEMMATIZABLE_EN_POS_TO_POS_SIMPLE[token.tag]
-        #  TODO: what about multithreading?
-        # return lesk(article.split(), word, pos=simple_pos)
-        return self._get_synsets(token.lemma, simple_pos)[0]
+        return adapted_lesk(
+            context_sentence=text.raw_text, ambiguous_word=token.text, pos=simple_pos
+        )
+
+    @staticmethod
+    def get_shortened_definition(definition: str) -> str:
+        without_parentheses = re.sub(r"\([^)]*\)", "", definition)
+        without_subtext_after_semicolon = without_parentheses.split(";")[0]
+        return without_subtext_after_semicolon.strip()
 
     def get_definition(
-        self, token: TokenEN, text: TextHolderEN, difficulty: int
+        self,
+        token: TokenEN,
+        text: TextHolderEN,
+        difficulty: int,
+        use_synonyms: bool = True,
+        shorten: bool = True,
     ) -> Optional[str]:
-        try:
-            synset = self._get_disambiguated_synset(token, text)
-            definition = synset.definition()
-            if len(definition) > self.max_reasonable_length:
-                easy_synonym = self._get_synonym_if_easy(
-                    token.lemma, synset, difficulty
-                )
-                if easy_synonym is not None:
-                    return easy_synonym
-            return definition
-        except IndexError:
+
+        synset = self._get_disambiguated_synset(token, text)
+        if synset is None:
             return None
+        definition = synset.definition()
+
+        if shorten:
+            definition = self.get_shortened_definition(definition)
+
+        if len(definition) <= self.max_reasonable_length:
+            return definition
+
+        if use_synonyms:
+            easy_synonym = self._get_synonym_if_easy(token.lemma, synset, difficulty)
+            if easy_synonym is not None:
+                return easy_synonym
+
+        return definition
