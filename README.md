@@ -1,5 +1,7 @@
 # SmartWordHints
 
+[![Tests](https://github.com/mihal277/SmartWordHints/actions/workflows/run-tests.yml/badge.svg)](https://github.com/mihal277/SmartWordHints/actions/workflows/run-tests.yml)
+
 ## API
 
 ### Running the API locally inside Docker
