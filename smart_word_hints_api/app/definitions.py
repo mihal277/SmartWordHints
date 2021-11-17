@@ -4,7 +4,6 @@ from typing import Optional
 from nltk.corpus.reader import Synset
 from pywsd.lesk import adapted_lesk
 
-from smart_word_hints_api.app.constants import LEMMATIZABLE_EN_POS_TO_POS_SIMPLE
 from smart_word_hints_api.app.difficulty_rankings import DifficultyRanking
 from smart_word_hints_api.app.text_holder import TextHolderEN
 from smart_word_hints_api.app.token_wrappers import TokenEN
@@ -35,9 +34,10 @@ class DefinitionProviderEN:
         return None
 
     def _get_disambiguated_synset(self, token: TokenEN, text: TextHolderEN) -> Synset:
-        simple_pos = LEMMATIZABLE_EN_POS_TO_POS_SIMPLE[token.tag]
         return adapted_lesk(
-            context_sentence=text.raw_text, ambiguous_word=token.text, pos=simple_pos
+            context_sentence=text.raw_text,
+            ambiguous_word=token.text,
+            pos=token.pos_simple,
         )
 
     @staticmethod

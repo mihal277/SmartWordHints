@@ -43,6 +43,8 @@ class EnglishToEnglishHintsProvider:
         text = TextHolderEN(article)
         hints = []
         for token in text.tokens:
+            if not token.is_translatable():
+                continue
             if self.difficulty_ranking.is_hard(token.lemma, difficulty):
                 hint = self.get_hint(token, text, difficulty)
                 if hint is not None:
