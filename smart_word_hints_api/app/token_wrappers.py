@@ -4,7 +4,11 @@ from typing import Optional
 
 from spacy.tokens.token import Token
 
-from smart_word_hints_api.app.constants import UNIVERSAL_POS_VERB
+from smart_word_hints_api.app.constants import (
+    LEMMATIZABLE_EN_POS_TO_POS_SIMPLE,
+    TRANSLATABLE_EN_POS,
+    UNIVERSAL_POS_VERB,
+)
 from smart_word_hints_api.app.difficulty_rankings import DifficultyRankingEN
 
 difficulty_ranking_en = DifficultyRankingEN()
@@ -71,3 +75,14 @@ class TokenEN(TokenWrapper):
     def flag_as_phrasal_base_verb(self, particle_token: TokenEN) -> None:
         self._is_phrasal_verb_base_verb = True
         self._phrasal_verb_particle_token = particle_token
+
+    def is_translatable(self) -> bool:
+        return self.tag in TRANSLATABLE_EN_POS
+
+    @property
+    def pos_simple(self) -> str:
+        """
+        Raises KeyError if the word doesn't have a simple POS.
+        Run this method if is_translatable() == True.
+        """
+        return LEMMATIZABLE_EN_POS_TO_POS_SIMPLE[self.tag]
