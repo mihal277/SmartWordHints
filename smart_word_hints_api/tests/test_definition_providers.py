@@ -1,3 +1,5 @@
+import pytest
+
 from smart_word_hints_api.app.definitions import DefinitionProviderEN
 from smart_word_hints_api.app.difficulty_rankings import (
     DifficultyRanking,
@@ -29,7 +31,7 @@ def test_word_plant_is_correctly_disambiguated():
     )
 
 
-def test_word_definitions_shortening():
+def test_word_definitions_shortening__parenthesis_at_the_beginning():
     ranking = DifficultyRankingEN()
     provider = DefinitionProviderEN(ranking)
     holder = TextHolderEN("The plant is an endemic species.")
@@ -37,4 +39,46 @@ def test_word_definitions_shortening():
     assert (
         provider.get_definition(token, holder, 1000, use_synonyms=False, shorten=True)
         == "a living organism lacking the power of locomotion"
+    )
+
+
+def test_word_definitions_shortening__parenthesis_in_the_middle():
+    ranking = DifficultyRankingEN()
+    provider = DefinitionProviderEN(ranking)
+    holder = TextHolderEN("The tissue is wet.")
+    token = holder.tokens[1]
+    assert (
+        provider.get_definition(token, holder, 1000, use_synonyms=False, shorten=True)
+        == "a soft thin paper"
+    )
+
+
+def test_word_definitions_shortening__parenthesis_in_the_middle__shorten_set_to_false():
+    ranking = DifficultyRankingEN()
+    provider = DefinitionProviderEN(ranking)
+    holder = TextHolderEN("The tissue is wet.")
+    token = holder.tokens[1]
+    assert (
+        provider.get_definition(token, holder, 1000, use_synonyms=False, shorten=False)
+        == "a soft thin (usually translucent) paper"
+    )
+
+
+@pytest.mark.parametrize(
+    "definition,shortened_definition",
+    [
+        ("(botany) a living organism", "a living organism"),
+        ("a living organism (botany)", "a living organism"),
+        ("a living (at the moment) organism", "a living organism"),
+        ("a living (at the moment) organism; often large", "a living organism"),
+        ("a living organism; often large", "a living organism"),
+        ("(botany) a living organism; often large", "a living organism"),
+        ("a living organism (botany); often large", "a living organism"),
+        ("a living organism; often large; sometimes small", "a living organism"),
+    ],
+)
+def test_get_shortened_definition(definition, shortened_definition):
+    assert (
+        DefinitionProviderEN.get_shortened_definition(definition)
+        == shortened_definition
     )

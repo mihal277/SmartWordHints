@@ -39,3 +39,36 @@ def test_hints_endpoint__gibberish_returns_empty_list_of_hints():
     )
     assert response.status_code == 200
     assert response.json() == {"hints": []}
+
+
+def test_hints_endpoint__by_default_avoid_repetitions():
+    response = client.post(
+        "/api/get_hints",
+        json={"text": "A tissue. A tissue.", "options": {"difficulty": 1000}},
+    )
+    assert response.status_code == 200
+    assert len(response.json()["hints"]) == 1
+
+
+def test_hints_endpoint__explicitely_avoid_repetitions():
+    response = client.post(
+        "/api/get_hints",
+        json={
+            "text": "A tissue. A tissue.",
+            "options": {"difficulty": 1000, "avoid_repetitions": False},
+        },
+    )
+    assert response.status_code == 200
+    assert len(response.json()["hints"]) == 2
+
+
+def test_hints_endpoint__without_avoiding_repetition():
+    response = client.post(
+        "/api/get_hints",
+        json={
+            "text": "A tissue. A tissue.",
+            "options": {"difficulty": 1000, "avoid_repetitions": False},
+        },
+    )
+    assert response.status_code == 200
+    assert len(response.json()["hints"]) == 2
