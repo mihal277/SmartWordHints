@@ -25,6 +25,10 @@ class HintsOptions(BaseModel):
         description="Only show hints for words less common than this number",
         ge=0,
     )
+    avoid_repetitions: Optional[bool] = Field(
+        default=True,
+        description="Specifies if repeating the same definitions should be avoided",
+    )
 
     @root_validator
     def are_valid_languages(cls, values):
@@ -46,7 +50,9 @@ en_to_en_hints_provider = EnglishToEnglishHintsProvider()
 @app.post("/api/get_hints")
 def get_hints(request_body: WordHintsRequest):
     hints = en_to_en_hints_provider.get_hints(
-        request_body.text, request_body.options.difficulty  # type: ignore
+        request_body.text,
+        request_body.options.difficulty,  # type: ignore
+        request_body.options.avoid_repetitions,  # type: ignore
     )
     return {"hints": [dataclasses.asdict(hint) for hint in hints]}
 

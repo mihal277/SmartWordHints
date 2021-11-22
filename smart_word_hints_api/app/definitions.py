@@ -42,7 +42,7 @@ class DefinitionProviderEN:
 
     @staticmethod
     def get_shortened_definition(definition: str) -> str:
-        without_parentheses = re.sub(r"\([^)]*\)", "", definition)
+        without_parentheses = re.sub(r"\([^)]*\)", "", definition).replace("  ", " ")
         without_subtext_after_semicolon = without_parentheses.split(";")[0]
         return without_subtext_after_semicolon.strip()
 
@@ -54,7 +54,6 @@ class DefinitionProviderEN:
         use_synonyms: bool = True,
         shorten: bool = True,
     ) -> Optional[str]:
-
         synset = self._get_disambiguated_synset(token, text)
         if synset is None:
             return None
