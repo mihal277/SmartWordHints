@@ -55,9 +55,6 @@ class TokenEN(TokenWrapper):
         self._is_phrasal_verb_base_verb: Optional[bool] = None
         self._phrasal_verb_particle_token: Optional[TokenEN] = None
 
-    def is_hard(self, max_difficulty: int) -> bool:
-        return difficulty_ranking_en.is_hard(self.text, max_difficulty)
-
     def is_phrasal_verb_particle(self) -> bool:
         return self.dep in "prt" and self.head.pos_ == UNIVERSAL_POS_VERB
 

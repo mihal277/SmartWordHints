@@ -55,11 +55,11 @@ def test_hints_endpoint__explicitely_avoid_repetitions():
         "/api/get_hints",
         json={
             "text": "A tissue. A tissue.",
-            "options": {"difficulty": 1000, "avoid_repetitions": False},
+            "options": {"difficulty": 1000, "avoid_repetitions": True},
         },
     )
     assert response.status_code == 200
-    assert len(response.json()["hints"]) == 2
+    assert len(response.json()["hints"]) == 1
 
 
 def test_hints_endpoint__without_avoiding_repetition():

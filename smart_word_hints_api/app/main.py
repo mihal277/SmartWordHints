@@ -27,7 +27,7 @@ class HintsOptions(BaseModel):
     )
     avoid_repetitions: Optional[bool] = Field(
         default=True,
-        description="Specifies if repeating the same definitions should be avoided",
+        description="Specifies if repeating the same hints should be avoided",
     )
 
     @root_validator

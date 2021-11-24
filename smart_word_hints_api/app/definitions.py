@@ -29,7 +29,7 @@ class DefinitionProviderEN:
             synonym = synonym_lemma.name()
             if synonym == word:
                 continue
-            if not self.difficulty_ranking.is_hard(synonym, difficulty):
+            if self.difficulty_ranking.check(synonym, difficulty).easy():
                 return synonym
         return None
 
