@@ -94,3 +94,14 @@ def test_get_shortened_definition(definition, shortened_definition):
         DefinitionProviderEN.get_shortened_definition(definition)
         == shortened_definition
     )
+
+
+def test_phrasal_verb_correctly_translated():
+    ranking = DifficultyRanking({"shut": 1500})
+    provider = DefinitionProviderEN(ranking)
+    holder = TextHolderEN("You should shut up.", flag_phrasal_verbs=True)
+    token = holder.tokens[2]
+    assert (
+        provider.get_definition(token, holder, 1000, use_synonyms=False, shorten=True)
+        == "refuse to talk or stop talking"
+    )

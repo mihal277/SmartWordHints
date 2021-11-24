@@ -60,3 +60,60 @@ def test_hints_are_returned_without_repetitions_if_avoid_repetitions_is_true():
     ]
 
     assert actual == expected
+
+
+def test_uppercase_word__noun():
+    hints_provider = EnglishToEnglishHintsProvider(
+        difficulty_ranking=DifficultyRanking({"prophet": 1500})
+    )
+    actual = hints_provider.get_hints("I don't know the Prophet.", 1000)
+    expected = [
+        Hint(
+            word="Prophet",
+            start_position=17,
+            end_position=24,
+            ranking=1500,
+            definition="someone who speaks by divine inspiration",
+            part_of_speech="NNP",
+        )
+    ]
+
+    assert actual == expected
+
+
+def test_uppercase_word__verb():
+    hints_provider = EnglishToEnglishHintsProvider(
+        difficulty_ranking=DifficultyRanking({"build": 1500})
+    )
+    actual = hints_provider.get_hints("I Build The House.", 1000)
+    expected = [
+        Hint(
+            word="Build",
+            start_position=2,
+            end_position=7,
+            ranking=1500,
+            definition="make by combining materials and parts",
+            part_of_speech="VBP",
+        )
+    ]
+
+    assert actual == expected
+
+
+def test_hints_with_phrasal_verbs():
+    hints_provider = EnglishToEnglishHintsProvider(
+        difficulty_ranking=DifficultyRanking({"pull": 1500})
+    )
+    actual = hints_provider.get_hints("Pull over, sir.", 1000)
+    expected = [
+        Hint(
+            word="Pull over",
+            start_position=0,
+            end_position=4,
+            ranking=1500,
+            definition="steer a vehicle to the side of the road",
+            part_of_speech="VB",
+        )
+    ]
+
+    assert actual == expected

@@ -33,10 +33,22 @@ class DefinitionProviderEN:
                 return synonym
         return None
 
-    def _get_disambiguated_synset(self, token: TokenEN, text: TextHolderEN) -> Synset:
+    def _get_ambiguous_word(self, token: TokenEN) -> str:
+        if not token.was_phrasal_verb_flagging_run():
+            return token.text
+        if token.is_phrasal_base_verb():
+            return f"{token.text}_{token.particle_token.text}"
+        return token.text
+
+    def _get_disambiguated_synset(
+        self, token: TokenEN, text: TextHolderEN
+    ) -> Optional[Synset]:
+        if token.is_phrasal_verb_particle():
+            return None
+
         return adapted_lesk(
             context_sentence=text.raw_text,
-            ambiguous_word=token.text,
+            ambiguous_word=self._get_ambiguous_word(token),
             pos=token.pos_simple,
         )
 
