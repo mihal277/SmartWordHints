@@ -58,10 +58,13 @@ class TokenEN(TokenWrapper):
     def is_phrasal_verb_particle(self) -> bool:
         return self.dep in "prt" and self.head.pos_ == UNIVERSAL_POS_VERB
 
+    def was_phrasal_verb_flagging_run(self) -> bool:
+        return self._is_phrasal_verb_base_verb is not None
+
     def is_phrasal_base_verb(self) -> bool:
-        if self._is_phrasal_verb_base_verb is None:
+        if not self.was_phrasal_verb_flagging_run():
             raise PhrasalVerbError("Phrasal verb flagging not run")
-        return self._is_phrasal_verb_base_verb
+        return self._is_phrasal_verb_base_verb  # type: ignore
 
     @property
     def particle_token(self) -> TokenEN:
