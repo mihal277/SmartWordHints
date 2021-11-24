@@ -20,6 +20,18 @@ def test_an_easy_synonym_is_returned_as_definition():
     assert definition == "car"
 
 
+def test_synonym_is_not_returned_if_it_is_unknown_in_the_ranking():
+    difficulty_ranking = DifficultyRanking({"auto": 1500})
+    definition_provider = DefinitionProviderEN(
+        difficulty_ranking, max_reasonable_length=50
+    )
+    text = TextHolderEN("I bought a new auto.")
+    definition = definition_provider.get_definition(
+        text.tokens[4], text, 1000, use_synonyms=True, shorten=True
+    )
+    assert definition == "a motor vehicle with four wheels"
+
+
 def test_word_plant_is_correctly_disambiguated():
     ranking = DifficultyRanking({"plant": 1500})
     provider = DefinitionProviderEN(ranking)

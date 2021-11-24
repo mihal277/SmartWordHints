@@ -62,7 +62,8 @@ class EnglishToEnglishHintsProvider:
             return True
         if avoid_repetitions and self.would_be_a_repetition(token, already_hinted):
             return True
-        if not self.difficulty_ranking.is_hard(token.lemma, difficulty):
+        difficulty_result = self.difficulty_ranking.check(token.lemma, difficulty)
+        if difficulty_result.easy_or_unknown():
             return True
         return False
 
