@@ -1,6 +1,8 @@
 from nltk.corpus.reader import ADJ, ADJ_SAT, ADV, NOUN, VERB
 
-EN_FREQUENCY_RANKING_PATH: str = "smart_word_hints_api/app/ranking_common_en.txt"
+ASSETS_PATH: str = "smart_word_hints_api/app/assets"
+EN_FREQUENCY_RANKING_PATH: str = ASSETS_PATH + "/ranking_common_en.txt"
+EN_PHRASAL_VERBS_PATH: str = ASSETS_PATH + "/english_phrasal_verbs.txt"
 
 EN: str = "english"
 PL: str = "polish"
