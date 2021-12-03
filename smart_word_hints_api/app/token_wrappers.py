@@ -9,9 +9,7 @@ from smart_word_hints_api.app.constants import (
     TRANSLATABLE_EN_POS,
     UNIVERSAL_POS_VERB,
 )
-from smart_word_hints_api.app.difficulty_rankings import DifficultyRankingEN
-
-difficulty_ranking_en = DifficultyRankingEN()
+from smart_word_hints_api.app.phrasal_verbs import load_phrasal_verbs
 
 
 class TokenWrapper:
@@ -41,12 +39,22 @@ class TokenWrapper:
         return self.raw_token.dep_
 
     @property
-    def head(self) -> Token:
-        return self.raw_token.head
+    def i(self) -> int:
+        return self.raw_token.i
+
+    def is_verb(self):
+        return self.pos == UNIVERSAL_POS_VERB
 
 
 class PhrasalVerbError(Exception):
     pass
+
+
+class TokenError(Exception):
+    pass
+
+
+PHRASAL_VERBS = load_phrasal_verbs()
 
 
 class TokenEN(TokenWrapper):
@@ -54,9 +62,45 @@ class TokenEN(TokenWrapper):
         super().__init__(spacy_token, start_position, end_position)
         self._is_phrasal_verb_base_verb: Optional[bool] = None
         self._phrasal_verb_particle_token: Optional[TokenEN] = None
+        self._phrasal_verb_preposition_token: Optional[TokenEN] = None
+        self._head: Optional[TokenEN] = None
+
+    @property
+    def head(self) -> TokenEN:
+        if self._head is None:
+            raise TokenError("Head is not set")
+        return self._head
+
+    def _is_on_list_of_phrasal_verbs_with_particle_and_preposition(self) -> bool:
+        potential_prt_prep_pv = (
+            f"{self.head.lemma} {self.head.particle_token.text} {self.text}"
+        )
+        return potential_prt_prep_pv in PHRASAL_VERBS
+
+    def _is_on_list_of_phrasal_verbs_with_preposition(self) -> bool:
+        if self.head.is_phrasal_base_verb() and self.head.particle_token is not None:
+            return self._is_on_list_of_phrasal_verbs_with_particle_and_preposition()
+        potential_prep_pv = f"{self.head.lemma} {self.text}"
+        return potential_prep_pv in PHRASAL_VERBS
+
+    def _comes_right_after_verb_or_particle(self) -> bool:
+        if self.head.is_phrasal_base_verb() and self.head.particle_token is not None:
+            return self.i == self.head.particle_token.i + 1
+        return self.i == self.head.i + 1
 
     def is_phrasal_verb_particle(self) -> bool:
-        return self.dep in "prt" and self.head.pos_ == UNIVERSAL_POS_VERB
+        return self.dep == "prt" and self.head.pos == UNIVERSAL_POS_VERB
+
+    def is_phrasal_verb_preposition(self) -> bool:
+        return (
+            self.dep == "prep"
+            and self.head.pos == UNIVERSAL_POS_VERB
+            and self._is_on_list_of_phrasal_verbs_with_preposition()
+            and self._comes_right_after_verb_or_particle()
+        )
+
+    def is_phrasal_verb_prt_or_prep(self) -> bool:
+        return self.is_phrasal_verb_particle() or self.is_phrasal_verb_preposition()
 
     def was_phrasal_verb_flagging_run(self) -> bool:
         return self._is_phrasal_verb_base_verb is not None
@@ -69,12 +113,31 @@ class TokenEN(TokenWrapper):
     @property
     def particle_token(self) -> TokenEN:
         if not self.is_phrasal_base_verb():
-            raise Exception("Not a phrasal base verb")
+            raise PhrasalVerbError("Not a phrasal base verb")
         return self._phrasal_verb_particle_token  # type: ignore
 
-    def flag_as_phrasal_base_verb(self, particle_token: TokenEN) -> None:
+    @property
+    def preposition_token(self) -> TokenEN:
+        if not self.is_phrasal_base_verb():
+            raise PhrasalVerbError("Not a phrasal base verb")
+        return self._phrasal_verb_preposition_token  # type: ignore
+
+    def flag_as_phrasal_base_verb(
+        self,
+        particle_token: Optional[TokenEN] = None,
+        preposition_token: Optional[TokenEN] = None,
+    ) -> None:
         self._is_phrasal_verb_base_verb = True
-        self._phrasal_verb_particle_token = particle_token
+
+        if particle_token is None and preposition_token is None:
+            raise PhrasalVerbError(
+                "At least one of particle/preposition tokens must be provided"
+            )
+
+        if particle_token is not None:
+            self._phrasal_verb_particle_token = particle_token
+        if preposition_token is not None:
+            self._phrasal_verb_preposition_token = preposition_token
 
     def is_translatable(self) -> bool:
         return self.tag in TRANSLATABLE_EN_POS
