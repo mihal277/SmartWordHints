@@ -24,12 +24,6 @@ class EnglishToEnglishHintsProvider:
         self.difficulty_ranking = difficulty_ranking or DifficultyRankingEN()
         self.definitions_provider = DefinitionProviderEN(self.difficulty_ranking)
 
-    @staticmethod
-    def _get_word_which_is_hinted(token: TokenEN) -> str:
-        if token.is_phrasal_base_verb():
-            return f"{token.text} {token.particle_token.text}"
-        return token.text
-
     def _get_hint(
         self, token: TokenEN, text: TextHolderEN, difficulty: int
     ) -> Optional[Hint]:
@@ -38,7 +32,7 @@ class EnglishToEnglishHintsProvider:
         if definition is None:
             return None
         return Hint(
-            word=self._get_word_which_is_hinted(token),
+            word=token.text_extended,
             start_position=token.start_position,
             end_position=token.end_position,
             ranking=ranking,

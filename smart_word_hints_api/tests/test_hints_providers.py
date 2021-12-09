@@ -100,7 +100,7 @@ def test_uppercase_word__verb():
     assert actual == expected
 
 
-def test_hints_with_phrasal_verbs():
+def test_hints_with_phrasal_verbs__particle():
     hints_provider = EnglishToEnglishHintsProvider(
         difficulty_ranking=DifficultyRanking({"pull": 1500})
     )
@@ -112,6 +112,44 @@ def test_hints_with_phrasal_verbs():
             end_position=4,
             ranking=1500,
             definition="steer a vehicle to the side of the road",
+            part_of_speech="VB",
+        )
+    ]
+
+    assert actual == expected
+
+
+def test_hints_with_phrasal_verbs__preposition():
+    hints_provider = EnglishToEnglishHintsProvider(
+        difficulty_ranking=DifficultyRanking({"look": 1500})
+    )
+    actual = hints_provider.get_hints("I am looking after the kids.", 1000)
+    expected = [
+        Hint(
+            word="looking after",
+            start_position=5,
+            end_position=12,
+            ranking=1500,
+            definition="keep under careful scrutiny",
+            part_of_speech="VBG",
+        )
+    ]
+
+    assert actual == expected
+
+
+def test_hints_with_phrasal_verbs__particle_with_preposition():
+    hints_provider = EnglishToEnglishHintsProvider(
+        difficulty_ranking=DifficultyRanking({"get": 1500})
+    )
+    actual = hints_provider.get_hints("You should get around to it.", 1000)
+    expected = [
+        Hint(
+            word="get around to",
+            start_position=11,
+            end_position=14,
+            ranking=1500,
+            definition="do something despite obstacles such as lack of time",
             part_of_speech="VB",
         )
     ]
