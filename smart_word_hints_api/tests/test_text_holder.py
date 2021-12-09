@@ -49,6 +49,7 @@ def test_heads_are_set_correctly(text):
         ("You brought that up yesterday", [(1, 3)]),
         ("Please do not give in.", [(3, 4)]),
         ("She is handing it in.", [(2, 4)]),
+        ("His friend passed away last week.", [(2, 3)]),
         ("You should think the issue over. She is handing it in.", [(2, 5), (9, 11)]),
     ],
 )
@@ -141,6 +142,7 @@ def test_phrasal_verbs__with_particles_and_prepositions(text, phrasal_verb_indic
         "We must hang to have an out.",
         "I was walking by the river and fell.",
         "Look there. After you.",
+        "He passed the exam away from home.",
     ],
 )
 def test_no_phrasal_verbs__are_not_detected(text):

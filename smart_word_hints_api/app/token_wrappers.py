@@ -149,3 +149,27 @@ class TokenEN(TokenWrapper):
         Run this method if is_translatable() == True.
         """
         return LEMMATIZABLE_EN_POS_TO_POS_SIMPLE[self.tag]
+
+    def _phrasal_verb_str(self, use_lemma=False) -> str:
+        result = self.lemma if use_lemma else self.text
+        if self.particle_token is not None:
+            result += f" {self.particle_token.text}"
+        if self.preposition_token is not None:
+            result += f" {self.preposition_token.text}"
+        return result
+
+    def _word_extended(self, use_lemma=False) -> str:
+        word = self.lemma if use_lemma else self.text
+        if not self.was_phrasal_verb_flagging_run():
+            return word
+        if self.is_phrasal_base_verb():
+            return self._phrasal_verb_str(use_lemma=use_lemma)
+        return word
+
+    @property
+    def lemma_extended(self) -> str:
+        return self._word_extended(use_lemma=True)
+
+    @property
+    def text_extended(self) -> str:
+        return self._word_extended(use_lemma=False)

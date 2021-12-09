@@ -96,7 +96,7 @@ def test_get_shortened_definition(definition, shortened_definition):
     )
 
 
-def test_phrasal_verb_correctly_translated():
+def test_phrasal_verb_correctly_translated__particle():
     ranking = DifficultyRanking({"shut": 1500})
     provider = DefinitionProviderEN(ranking)
     holder = TextHolderEN("You should shut up.", flag_phrasal_verbs=True)
@@ -104,4 +104,26 @@ def test_phrasal_verb_correctly_translated():
     assert (
         provider.get_definition(token, holder, 1000, use_synonyms=False, shorten=True)
         == "refuse to talk or stop talking"
+    )
+
+
+def test_phrasal_verb_correctly_translated__preposition():
+    ranking = DifficultyRanking({"care": 1500})
+    provider = DefinitionProviderEN(ranking)
+    holder = TextHolderEN("She says he never cared for her.", flag_phrasal_verbs=True)
+    token = holder.tokens[4]
+    assert (
+        provider.get_definition(token, holder, 1000, use_synonyms=False, shorten=True)
+        == "provide treatment for"
+    )
+
+
+def test_phrasal_verb_correctly_translated__particle_with_preposition():
+    ranking = DifficultyRanking({"get": 1500})
+    provider = DefinitionProviderEN(ranking)
+    holder = TextHolderEN("You should get around to it.", flag_phrasal_verbs=True)
+    token = holder.tokens[2]
+    assert (
+        provider.get_definition(token, holder, 1000, use_synonyms=False, shorten=True)
+        == "do something despite obstacles such as lack of time"
     )
