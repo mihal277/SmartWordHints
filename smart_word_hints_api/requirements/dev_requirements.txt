@@ -153,7 +153,7 @@ pytz==2021.3
     # via
     #   -r requirements.txt
     #   pandas
-pywsd==1.2.4
+pywsd @ https://github.com/mihal277/pywsd/archive/refs/heads/load-signatures-from-json.zip
     # via -r requirements.txt
 regex==2021.11.10
     # via

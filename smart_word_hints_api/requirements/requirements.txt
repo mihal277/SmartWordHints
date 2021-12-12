@@ -82,7 +82,7 @@ python-dateutil==2.8.2
     # via pandas
 pytz==2021.3
     # via pandas
-pywsd==1.2.4
+pywsd @ https://github.com/mihal277/pywsd/archive/refs/heads/load-signatures-from-json.zip
     # via -r requirements.in
 regex==2021.11.10
     # via nltk
