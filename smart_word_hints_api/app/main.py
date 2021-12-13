@@ -10,10 +10,14 @@ from smart_word_hints_api.app.hints_providers import EnglishToEnglishHintsProvid
 
 VALID_LANG_PAIRS = [(EN, EN)]
 
+MAJOR_VERSION = 1
+MINOR_VERSION = 0
+PATCH_VERSION = 0
+
 app = FastAPI(
     title="Smart Word Hints",
     description="API for the browser extension displaying hints above difficult words",
-    version="0.0.1",
+    version=f"{MAJOR_VERSION}.{MINOR_VERSION}.{PATCH_VERSION}",
 )
 
 
@@ -47,7 +51,8 @@ class WordHintsRequest(BaseModel):
 en_to_en_hints_provider = EnglishToEnglishHintsProvider()
 
 
-@app.post("/api/get_hints")
+@app.post(f"/api/v{MAJOR_VERSION}/get_hints")
+@app.post("/api/latest/get_hints")
 def get_hints(request_body: WordHintsRequest):
     hints = en_to_en_hints_provider.get_hints(
         request_body.text,
@@ -57,7 +62,8 @@ def get_hints(request_body: WordHintsRequest):
     return {"hints": [dataclasses.asdict(hint) for hint in hints]}
 
 
-@app.get("/api/available_languages")
+@app.get(f"/api/v{MAJOR_VERSION}/available_languages")
+@app.get("/api/latest/available_languages")
 def available_languages():
     return VALID_LANG_PAIRS
 
