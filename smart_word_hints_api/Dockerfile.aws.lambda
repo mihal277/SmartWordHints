@@ -1,0 +1,20 @@
+FROM public.ecr.aws/lambda/python:3.9.2021.12.15.13
+
+RUN yum -y install gcc gcc-c++
+
+COPY requirements/requirements.txt /tmp/
+RUN pip install --no-cache-dir -U pip setuptools wheel
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+ENV NLTK_DATA="${LAMBDA_TASK_ROOT}/nltk_data"
+
+COPY requirements/nltk_modules.txt /tmp/
+COPY requirements/nltk_download.py /tmp/
+RUN python /tmp/nltk_download.py /tmp/nltk_modules.txt "${NLTK_DATA}"
+
+COPY requirements/spacy_modules.txt /tmp/
+RUN python -m spacy download $(cat /tmp/spacy_modules.txt)
+
+COPY ./app smart_word_hints_api/app
+
+CMD ["smart_word_hints_api.app.main.handler"]

@@ -1,0 +1,9 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "smart-word-hints"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-didyzbrlw89l"
+s3_prefix = "smart-word-hints"
+region = "eu-west-2"
+capabilities = "CAPABILITY_IAM"

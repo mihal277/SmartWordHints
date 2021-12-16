@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from mangum import Mangum
 from pydantic import BaseModel, Field, root_validator
 
 from smart_word_hints_api.app.constants import EN
@@ -71,3 +72,6 @@ def available_languages():
 @app.get("/")
 def main_get():
     return RedirectResponse(url="/docs")
+
+
+handler = Mangum(app)
