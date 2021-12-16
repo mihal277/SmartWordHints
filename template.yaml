@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for Smart Word Hints
+
+Globals:
+  Function:
+    Timeout: 15
+
+Resources:
+  SmartWordHintsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 1500
+      Events:
+        GetHintsLatest:
+          Type: Api
+          Properties:
+            Path: /api/latest/get_hints
+            Method: post
+        GetHintsV1:
+          Type: Api
+          Properties:
+            Path: /api/v1/get_hints
+            Method: post
+    Metadata:
+      Dockerfile: Dockerfile.aws.lambda
+      DockerContext: ./smart_word_hints_api
+      DockerTag: v1.0.0
+
+Outputs:
+  SmartWordHintsApiLatest:
+    Description: "API Gateway endpoint URL for Prod stage for Smart Word Hints function (latest)"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/latest/get_hints"
+  SmartWordHintsApiV1:
+    Description: "API Gateway endpoint URL for Prod stage for Smart Word Hints function (v1)"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/v1/get_hints"

@@ -1,0 +1,7 @@
+{
+    "resource": "/api/v1/get_hints",
+    "path": "/api/v1/get_hints",
+    "httpMethod": "POST",
+    "requestContext": {},
+    "body": "{\"text\": \"This is a test request to the service\"}"
+}
