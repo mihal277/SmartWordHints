@@ -6,3 +6,6 @@ https://github.com/mihal277/pywsd/archive/refs/heads/load-signatures-from-json.z
 wn==0.0.23
   # this version is required by pywsd but pip-compile installs the newest one
 mangum
+lambda-warmer-py
+boto3
+  # this is a dependency of lambda-warmer-py but not added by pip-compile

@@ -12,6 +12,12 @@ blis==0.7.5
     # via
     #   spacy
     #   thinc
+boto3==1.20.26
+    # via -r requirements.in
+botocore==1.23.26
+    # via
+    #   boto3
+    #   s3transfer
 catalogue==2.0.6
     # via
     #   spacy
@@ -41,8 +47,14 @@ idna==3.3
     #   requests
 jinja2==3.0.3
     # via spacy
+jmespath==0.10.0
+    # via
+    #   boto3
+    #   botocore
 joblib==1.1.0
     # via nltk
+lambda-warmer-py==0.6.0
+    # via -r requirements.in
 mangum==0.12.3
     # via -r requirements.in
 markupsafe==2.0.1
@@ -81,7 +93,9 @@ pydantic==1.8.2
 pyparsing==2.4.7
     # via packaging
 python-dateutil==2.8.2
-    # via pandas
+    # via
+    #   botocore
+    #   pandas
 pytz==2021.3
     # via pandas
 pywsd @ https://github.com/mihal277/pywsd/archive/refs/heads/load-signatures-from-json.zip
@@ -90,6 +104,8 @@ regex==2021.11.10
     # via nltk
 requests==2.26.0
     # via spacy
+s3transfer==0.5.0
+    # via boto3
 six==1.16.0
     # via
     #   python-dateutil
@@ -123,7 +139,9 @@ typing-extensions==4.0.0
     #   mangum
     #   pydantic
 urllib3==1.26.7
-    # via requests
+    # via
+    #   botocore
+    #   requests
 uvicorn==0.15.0
     # via -r requirements.in
 wasabi==0.8.2

@@ -1,12 +1,14 @@
 import dataclasses
 from typing import Optional
 
+import lambdawarmer
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from mangum import Mangum
 from pydantic import BaseModel, Field, root_validator
 
-from smart_word_hints_api.app.constants import EN
+from smart_word_hints_api.app.config import config
+from smart_word_hints_api.app.constants import CONFIG_KEY_LAMBDAWARMER_SEND_METRIC, EN
 from smart_word_hints_api.app.hints_providers import EnglishToEnglishHintsProvider
 
 VALID_LANG_PAIRS = [(EN, EN)]
@@ -74,4 +76,9 @@ def main_get():
     return RedirectResponse(url="/docs")
 
 
-handler = Mangum(app)
+mangum_handler = Mangum(app)
+
+
+@lambdawarmer.warmer(send_metric=config.getboolean(CONFIG_KEY_LAMBDAWARMER_SEND_METRIC))
+def lambda_handler(event, context):
+    return mangum_handler(event, context)

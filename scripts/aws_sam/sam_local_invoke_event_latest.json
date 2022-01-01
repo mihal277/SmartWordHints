@@ -3,5 +3,6 @@
     "path": "/api/latest/get_hints",
     "httpMethod": "POST",
     "requestContext": {},
-    "body": "{\"text\": \"This is a test request to the service\"}"
+    "body": "{\"text\": \"This is a test request to the service\"}",
+    "warmer": false
 }
