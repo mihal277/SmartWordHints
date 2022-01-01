@@ -23,6 +23,14 @@ Resources:
           Properties:
             Path: /api/v1/get_hints
             Method: post
+        WarmingSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(5 minutes)
+            Input: '{ "warmer":true,"concurrency":2 }'
+      Environment:
+        Variables:
+          API_DEBUG_MODE: "no"
     Metadata:
       Dockerfile: Dockerfile.aws.lambda
       DockerContext: ./smart_word_hints_api

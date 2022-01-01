@@ -21,6 +21,13 @@ blis==0.7.5
     #   -r requirements.txt
     #   spacy
     #   thinc
+boto3==1.20.26
+    # via -r requirements.txt
+botocore==1.23.26
+    # via
+    #   -r requirements.txt
+    #   boto3
+    #   s3transfer
 catalogue==2.0.6
     # via
     #   -r requirements.txt
@@ -69,10 +76,17 @@ jinja2==3.0.3
     # via
     #   -r requirements.txt
     #   spacy
+jmespath==0.10.0
+    # via
+    #   -r requirements.txt
+    #   boto3
+    #   botocore
 joblib==1.1.0
     # via
     #   -r requirements.txt
     #   nltk
+lambda-warmer-py==0.6.0
+    # via -r requirements.txt
 mangum==0.12.3
     # via -r requirements.txt
 markupsafe==2.0.1
@@ -150,6 +164,7 @@ pytest==6.2.5
 python-dateutil==2.8.2
     # via
     #   -r requirements.txt
+    #   botocore
     #   pandas
 pytz==2021.3
     # via
@@ -167,6 +182,10 @@ requests==2.26.0
     #   -r dev_requirements.in
     #   -r requirements.txt
     #   spacy
+s3transfer==0.5.0
+    # via
+    #   -r requirements.txt
+    #   boto3
 six==1.16.0
     # via
     #   -r requirements.txt
@@ -225,6 +244,7 @@ typing-extensions==4.0.0
 urllib3==1.26.7
     # via
     #   -r requirements.txt
+    #   botocore
     #   requests
 uvicorn==0.15.0
     # via -r requirements.txt

@@ -16,5 +16,6 @@ COPY requirements/spacy_modules.txt /tmp/
 RUN python -m spacy download $(cat /tmp/spacy_modules.txt)
 
 COPY ./app smart_word_hints_api/app
+COPY ./config.ini smart_word_hints_api/config.ini
 
-CMD ["smart_word_hints_api.app.main.handler"]
+CMD ["smart_word_hints_api.app.main.lambda_handler"]
