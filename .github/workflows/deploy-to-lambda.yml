@@ -5,6 +5,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Add mask to hide the AWS account id from the logs
+        run: echo "::add-mask::${{ secrets.AWS_ACCOUNT_ID }}"
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
       - uses: aws-actions/setup-sam@v1
