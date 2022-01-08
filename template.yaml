@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: SAM Template for Smart Word Hints
 
@@ -10,6 +10,7 @@ Resources:
   SmartWordHintsFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: smart-word-hints-function
       PackageType: Image
       MemorySize: 1500
       Events:
@@ -31,6 +32,18 @@ Resources:
       Environment:
         Variables:
           API_DEBUG_MODE: "no"
+      Policies:
+        - Statement:
+            - Sid: PutMetricPolicy
+              Effect: Allow
+              Action:
+                - cloudwatch:PutMetricData
+              Resource: "*"
+            - Sid: InvokeFunctionPolicy
+              Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: !Sub arn:aws:lambda:eu-west-2:${AWS::AccountId}:function:smart-word-hints-function:$LATEST
     Metadata:
       Dockerfile: Dockerfile.aws.lambda
       DockerContext: ./smart_word_hints_api
