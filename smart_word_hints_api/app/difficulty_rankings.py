@@ -1,6 +1,7 @@
 from enum import Enum
+from pathlib import Path
 
-from smart_word_hints_api.app.constants import EN_FREQUENCY_RANKING_PATH
+from smart_word_hints_api.app.constants import EN_FREQUENCY_RANKING_RELATIVE_PATH
 
 
 class DifficultyRankingResult(Enum):
@@ -31,6 +32,7 @@ class DifficultyRanking(dict):
 class DifficultyRankingEN(DifficultyRanking):
     def __init__(self):
         super().__init__()
-        with open(EN_FREQUENCY_RANKING_PATH, "r") as f:
+        freq_ranking_path = Path(__file__).parent / EN_FREQUENCY_RANKING_RELATIVE_PATH
+        with open(freq_ranking_path, "r") as f:
             for i, word in enumerate(f.read().splitlines()):
                 self[word] = i
