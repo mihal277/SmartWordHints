@@ -1,10 +1,9 @@
 from nltk.corpus.reader import ADJ, ADJ_SAT, ADV, NOUN, VERB
 
-ASSETS_PATH: str = "smart_word_hints_api/app/assets"
-EN_FREQUENCY_RANKING_PATH: str = ASSETS_PATH + "/ranking_common_en.txt"
-EN_PHRASAL_VERBS_PATH: str = ASSETS_PATH + "/english_phrasal_verbs.txt"
+EN_FREQUENCY_RANKING_RELATIVE_PATH: str = "assets/ranking_common_en.txt"
+EN_PHRASAL_VERBS_RELATIVE_PATH: str = "assets/english_phrasal_verbs.txt"
 
-CONFIG_PATH = "smart_word_hints_api/config.ini"
+CONFIG_FILENAME = "config.ini"
 DEBUG_MODE_ENV_VAR = "API_DEBUG_MODE"
 CONFIG_PROD_SECTION = "prod"
 CONFIG_DEBUG_SECTION = "debug"
