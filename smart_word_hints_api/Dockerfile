@@ -17,4 +17,5 @@ RUN python -m nltk.downloader $(cat /tmp/nltk_modules.txt)
 RUN python -m spacy download $(cat /tmp/spacy_modules.txt)
 
 COPY ./app /app/smart_word_hints_api/app
+COPY ./config.ini /app/smart_word_hints_api/config.ini
 COPY ./__init__.py /app/smart_word_hints_api/__init__.py

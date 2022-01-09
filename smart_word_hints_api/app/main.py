@@ -3,6 +3,7 @@ from typing import Optional
 
 import lambdawarmer
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from mangum import Mangum
 from pydantic import BaseModel, Field, root_validator
@@ -21,6 +22,14 @@ app = FastAPI(
     title="Smart Word Hints",
     description="API for the browser extension displaying hints above difficult words",
     version=f"{MAJOR_VERSION}.{MINOR_VERSION}.{PATCH_VERSION}",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 
