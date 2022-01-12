@@ -9,7 +9,7 @@ from smart_word_hints_api.app.difficulty_rankings import (
 from smart_word_hints_api.app.text_holder import TextHolderEN, TokenEN
 
 
-@dataclass
+@dataclass(frozen=True)
 class Hint:
     word: str
     start_position: int
