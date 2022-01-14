@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-nltk>=3.6.5
+nltk>=3.6.6
 spacy<3.2.0
 https://github.com/mihal277/pywsd/archive/refs/heads/load-signatures-from-json.zip
 wn==0.0.23
