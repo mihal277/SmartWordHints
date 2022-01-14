@@ -1,0 +1,17 @@
+{
+  "name": "smart-word-hints-extension",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mihal277/SmartWordHints",
+    "directory": "extension"
+  },
+  "author": "mihal277",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^27.4.7"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}
