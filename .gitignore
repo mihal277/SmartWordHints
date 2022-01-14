@@ -142,3 +142,17 @@ cython_debug/
 
 # AWS SAM
 .aws-sam/
+
+# Mac OS
+.DS_Store
+
+# Yarn
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+node_modules

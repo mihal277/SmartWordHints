@@ -57,3 +57,12 @@ function getArticleNodes(doc, options = {}) {
 
   return nodes.filter(acceptNode);
 }
+
+function sum(a, b) {
+  return a + b;
+}
+
+module.exports = {
+  sum,
+  getArticleNodes
+}

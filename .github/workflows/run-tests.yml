@@ -4,11 +4,11 @@ on:
     branches:
       - master
 jobs:
-  build-and-run-tests:
+  build-and-run-backend-tests:
    runs-on: ubuntu-latest
    steps:
      - uses: actions/checkout@v2
-     - name: Build and run tests
+     - name: Build and run backend tests
        run: ./scripts/run_api_tests_docker.sh
 
   build-and-test-lambda-image:
@@ -23,3 +23,15 @@ jobs:
         run: sam build
       - name: Test image locally
         run: python ./scripts/aws_sam/sam_local_image_test.py
+
+  build-and-run-extension-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./extension
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install extension modules
+        run: yarn
+      - name: Run extension tests
+        run: yarn test
