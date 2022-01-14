@@ -64,7 +64,7 @@ murmurhash==1.0.6
     #   preshed
     #   spacy
     #   thinc
-nltk==3.6.5
+nltk==3.6.6
     # via
     #   -r requirements.in
     #   pywsd

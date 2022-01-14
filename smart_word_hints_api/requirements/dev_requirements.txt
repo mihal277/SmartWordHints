@@ -107,7 +107,7 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-nltk==3.6.5
+nltk==3.6.6
     # via
     #   -r requirements.txt
     #   pywsd
