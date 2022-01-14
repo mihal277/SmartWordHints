@@ -8,7 +8,7 @@ click==8.0.3
     # via nltk
 joblib==1.1.0
     # via nltk
-nltk==3.6.5
+nltk==3.6.6
     # via -r requirements.in
 regex==2021.11.10
     # via nltk
