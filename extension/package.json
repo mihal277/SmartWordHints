@@ -9,10 +9,15 @@
   "author": "mihal277",
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^8.7.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
     "jest": "^27.4.7"
   },
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "lint": "eslint ./scripts ./tests",
+    "lint-fix": "eslint ./scripts ./tests --fix"
   },
   "type": "module",
   "jest": {
