@@ -1,5 +1,6 @@
 /*
- * This code is based on https://github.com/mozilla/readability/blob/master/Readability-readerable.js
+ * A simple algorithm for extracting the nodes containing the article taken
+ * from https://github.com/mozilla/readability/blob/master/Readability-readerable.js
  */
 
 const REGEXPS = {
@@ -16,7 +17,7 @@ function isNodeVisible(node) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function getArticleNodes(doc, options = {}) {
+export default function getArticleNodes(doc, options = {}) {
   if (typeof options === 'function') {
     // eslint-disable-next-line no-param-reassign
     options = { visibilityChecker: options };
@@ -57,8 +58,4 @@ function getArticleNodes(doc, options = {}) {
   }
 
   return nodes.filter(acceptNode);
-}
-
-export default function sum(a, b) {
-  return a + b;
 }
