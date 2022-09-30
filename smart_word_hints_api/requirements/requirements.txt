@@ -51,7 +51,7 @@ jmespath==0.10.0
     # via
     #   boto3
     #   botocore
-joblib==1.1.0
+joblib==1.2.0
     # via nltk
 lambda-warmer-py==0.6.0
     # via -r requirements.in
