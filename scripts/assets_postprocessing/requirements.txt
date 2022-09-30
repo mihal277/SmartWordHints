@@ -6,7 +6,7 @@
 #
 click==8.0.3
     # via nltk
-joblib==1.1.0
+joblib==1.2.0
     # via nltk
 nltk==3.6.7
     # via -r requirements.in
