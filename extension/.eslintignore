@@ -1,1 +1,4 @@
-scripts/browser-polyfill.min.js*
+**/browser-polyfill.min.js*
+node_modules
+dist
+webpack*.js
