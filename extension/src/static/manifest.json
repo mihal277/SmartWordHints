@@ -43,10 +43,9 @@
       "matches": ["<all_urls>"],
       "js": [
         "scripts/browser-polyfill.min.js",
-        "scripts/get-article-nodes.js",
-        "scripts/show-hints.js"
+        "scripts/main.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ],
 
