@@ -11,10 +11,6 @@ module.exports = {
     background: path.join(scriptsPath, 'background.js'),
     main: path.join(scriptsPath, 'main.js'),
     popup: path.join(scriptsPath, 'popup.js'),
-    browser_polyfill: {
-      import: path.join(scriptsPath, 'browser-polyfill.min.js'),
-      filename: 'scripts/browser-polyfill.min.js',
-    },
   },
   output: {
     filename: 'scripts/[name].js',
@@ -23,7 +19,13 @@ module.exports = {
   },
   plugins: [
     new CopyPlugin({
-      patterns: [{ from: 'src/static' }],
+      patterns: [
+        { from: 'src/static' },
+        {
+          from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
+          to: 'scripts/browser-polyfill.js',
+        },
+      ],
     }),
   ],
 };
