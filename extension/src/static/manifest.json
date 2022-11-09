@@ -1,5 +1,4 @@
 {
-
   "manifest_version": 2,
   "name": "SmartWordHints",
   "version": "0.0.1",
@@ -11,6 +10,7 @@
 
   "permissions": [
     "storage",
+    "activeTab",
     "https://smartwordhints.com/",
     "http://localhost/"
   ],
@@ -24,8 +24,7 @@
     "default_icon": {
      "32" : "icons/quicknote-32.png"
     },
-    "default_title": "SmartWordHints",
-    "default_popup": "popup.html"
+    "default_title": "SmartWordHints"
   },
 
   "options_ui": {
@@ -45,7 +44,8 @@
         "scripts/browser-polyfill.js",
         "scripts/main.js"
       ],
-      "run_at": "document_end"
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
     }
   ],
 
@@ -56,6 +56,8 @@
     ],
     "persistent": false
   },
+
+  "web_accessible_resources": ["overlay.html"],
 
   "homepage_url": "https://github.com/mihal277/SmartWordHints"
 }

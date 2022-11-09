@@ -1,14 +1,42 @@
-import { isProbablyReaderable, Readability } from '@mozilla/readability';
-import * as DOMPurify from 'dompurify';
+import { isProbablyReaderable } from '@mozilla/readability';
 
-if (isProbablyReaderable(document)) {
-  const documentClone = document.cloneNode(true);
-  const reader = new Readability(documentClone).parse();
-  const sanitized = DOMPurify.sanitize(reader.content);
-  document.body.innerHTML += `<dialog>${sanitized})}<button>Close</button></dialog>`;
-  const dialog = document.querySelector('dialog');
-  dialog.querySelector('button').addEventListener('click', () => {
-    dialog.close();
-  });
-  dialog.showModal();
+import {
+  CLOSE_OVERLAY_EVENT_NAME,
+  EXTENSION_ICON_CLICKED_COMMAND,
+} from './constants';
+import {
+  hintsOverlayIsAlreadyInjectedToDOM,
+  hintsOverlayIsToggledOn,
+  injectAndShowHintsOverlay,
+  showOverlay,
+  hideOverlay,
+} from './overlay';
+
+function handleExtensionIconClickedWhenOverlayIsAlreadyInjected() {
+  if (hintsOverlayIsToggledOn()) {
+    showOverlay();
+  } else {
+    hideOverlay();
+  }
 }
+
+function handleExtensionIconClicked() {
+  if (hintsOverlayIsAlreadyInjectedToDOM()) {
+    handleExtensionIconClickedWhenOverlayIsAlreadyInjected();
+  } else {
+    const documentClone = document.cloneNode(true);
+    if (isProbablyReaderable(documentClone)) {
+      injectAndShowHintsOverlay(documentClone);
+    }
+  }
+}
+
+browser.runtime.onMessage.addListener((request) => {
+  if (request.command === EXTENSION_ICON_CLICKED_COMMAND) {
+    handleExtensionIconClicked();
+  } else throw Error(`Unexpected command ${request.command} received`);
+});
+
+document.addEventListener(CLOSE_OVERLAY_EVENT_NAME, () => {
+  showOverlay();
+});
