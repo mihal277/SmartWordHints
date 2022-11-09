@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@mozilla/readability": "^0.4.2",
-    "dompurify": "^2.4.0"
+    "sanitize-html": "^2.7.3"
   },
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
