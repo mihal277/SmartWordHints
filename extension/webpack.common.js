@@ -8,15 +8,28 @@ const scriptsPath = path.join(SRC_DIR, 'scripts');
 
 module.exports = {
   entry: {
-    background: path.join(scriptsPath, 'background.js'),
-    main: path.join(scriptsPath, 'main.js'),
-    popup: path.join(scriptsPath, 'popup.js'),
+    background: path.join(scriptsPath, 'background.ts'),
+    main: path.join(scriptsPath, 'main.ts'),
+    popup: path.join(scriptsPath, 'popup.ts'),
   },
+
   output: {
     filename: 'scripts/[name].js',
     path: DIST_DIR,
     clean: true,
   },
+
+  resolve: {
+    extensions: [".ts", ".js"],
+  },
+
+  module: {
+    rules: [
+      { test: /\.tsx?$/, loader: "ts-loader" },
+      { test: /\.js$/, loader: "source-map-loader" },
+    ],
+  },
+
   plugins: [
     new CopyPlugin({
       patterns: [
