@@ -12,7 +12,7 @@ import {
   hideOverlay,
 } from './overlay';
 
-function handleExtensionIconClickedWhenOverlayIsAlreadyInjected() {
+function handleExtensionIconClickedWhenOverlayIsAlreadyInjected(): void {
   if (hintsOverlayIsToggledOn()) {
     showOverlay();
   } else {
@@ -20,11 +20,11 @@ function handleExtensionIconClickedWhenOverlayIsAlreadyInjected() {
   }
 }
 
-function handleExtensionIconClicked() {
+function handleExtensionIconClicked(): void {
   if (hintsOverlayIsAlreadyInjectedToDOM()) {
     handleExtensionIconClickedWhenOverlayIsAlreadyInjected();
   } else {
-    const documentClone = document.cloneNode(true);
+    const documentClone = document.cloneNode(true) as Document;
     if (isProbablyReaderable(documentClone)) {
       injectAndShowHintsOverlay(documentClone);
     }

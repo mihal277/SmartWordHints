@@ -4,7 +4,7 @@
 
 ```
 yarn install
-yarn start
+yarn start-dev
 ```
 
 In another terminal 

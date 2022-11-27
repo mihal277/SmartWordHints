@@ -1,10 +1,10 @@
 import { DEFAULT_API_URL, EXTENSION_ICON_CLICKED_COMMAND } from './constants';
 
-function setDefaultURL() {
+function setDefaultURL(): void {
   browser.storage.sync.set({ api_url: DEFAULT_API_URL });
 }
 
-function initOptions() {
+function initOptions(): void {
   const apiUrl = browser.storage.sync.get('api_url');
   apiUrl.then(
     (results) => (!('api_url' in results) ? setDefaultURL() : {}),
@@ -35,7 +35,7 @@ initOptions();
 //
 // browser.runtime.onMessage.addListener(handleMessage);
 
-function startSmartWordHints(tab) {
+function startSmartWordHints(tab: browser.tabs.Tab): void {
   browser.tabs.sendMessage(tab.id, { command: EXTENSION_ICON_CLICKED_COMMAND }).catch((error) => {
     console.error(`Error starting smart word hints: ${error}`);
   });
