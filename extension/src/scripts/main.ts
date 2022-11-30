@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 import { isProbablyReaderable } from '@mozilla/readability';
 
 import {
@@ -31,7 +33,7 @@ function handleExtensionIconClicked(): void {
   }
 }
 
-browser.runtime.onMessage.addListener((request) => {
+browser.runtime.onMessage.addListener((request: { command: string; }) => {
   if (request.command === EXTENSION_ICON_CLICKED_COMMAND) {
     handleExtensionIconClicked();
   } else throw Error(`Unexpected command ${request.command} received`);

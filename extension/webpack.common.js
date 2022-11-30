@@ -6,6 +6,8 @@ const DIST_DIR = path.resolve(__dirname, 'dist');
 const SRC_DIR = path.resolve(__dirname, 'src');
 const scriptsPath = path.join(SRC_DIR, 'scripts');
 
+const buildForChromium = process.argv.indexOf('BUILD_FOR_CHROMIUM') > -1;
+
 module.exports = {
   entry: {
     background: path.join(scriptsPath, 'background.ts'),
@@ -20,23 +22,29 @@ module.exports = {
   },
 
   resolve: {
-    extensions: [".ts", ".js"],
+    extensions: ['.ts', '.js'],
   },
 
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: "ts-loader" },
-      { test: /\.js$/, loader: "source-map-loader" },
+      { test: /\.tsx?$/, loader: 'ts-loader' },
+      { test: /\.js$/, loader: 'source-map-loader' },
     ],
   },
 
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: 'src/static' },
         {
-          from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
-          to: 'scripts/browser-polyfill.js',
+          from: 'src/static',
+          globOptions: {
+            ignore: ['**/manifest-*.json'],
+          },
+        },
+        {
+          from: buildForChromium ? 'manifest-chromium.json' : 'manifest-firefox.json',
+          to: 'manifest.json',
+          context: path.resolve(SRC_DIR, 'static'),
         },
       ],
     }),

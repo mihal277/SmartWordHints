@@ -1,0 +1,57 @@
+{
+  "manifest_version": 2,
+  "name": "SmartWordHints",
+  "version": "0.0.1",
+
+  "description": "Adds hints for hard words found on a given website. Uses the API at https://smartwordhints.com/api",
+  "icons": {
+    "48": "icons/quicknote-48.png"
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "https://smartwordhints.com/",
+    "http://localhost/"
+  ],
+
+  "optional_permissions": [
+    "http://*/",
+    "https://*/"
+  ],
+
+  "browser_action": {
+    "default_icon": {
+      "32" : "icons/quicknote-32.png"
+    },
+    "default_title": "SmartWordHints"
+  },
+
+  "options_ui": {
+    "page": "options.html"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "smart-word-hints@mozilla.org"
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["scripts/main.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "background": {
+    "scripts": ["scripts/background.js"],
+    "persistent": false
+  },
+
+  "web_accessible_resources": ["overlay.html"],
+
+  "homepage_url": "https://github.com/mihal277/SmartWordHints"
+}

@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 const optionsLink = document.querySelector('#go-to-options');
 
 optionsLink.addEventListener('click', () => {
