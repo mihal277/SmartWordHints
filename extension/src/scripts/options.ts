@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 const STATUS_LENGTH_MS: number = 1300;
 const DEFAULT_API_URL: string = 'https://smartwordhints.com/api/get_hints';
 
@@ -12,7 +14,7 @@ function isValidUrl(str: string): boolean {
 }
 
 function requestPermissions(
-  permissionsToRequest: browser.permissions.Permissions,
+  permissionsToRequest: browser.Permissions.Permissions,
 ): void {
   function onResponse(response: boolean): void {
     const status = document.getElementById('status');

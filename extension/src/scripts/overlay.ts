@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 import { Readability } from '@mozilla/readability';
 import * as sanitizeHtml from 'sanitize-html';
 import { OVERLAY_CONTENT_DIV_ID, OVERLAY_CONTROLS_DIV_ID, OVERLAY_DIV_ID } from './constants';

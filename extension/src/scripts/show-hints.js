@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 function getTextWithHints(text, hints) {
   let updatedText = '';
   let lastEnd = 0;

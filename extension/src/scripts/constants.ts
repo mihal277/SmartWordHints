@@ -7,3 +7,7 @@ export const OVERLAY_CONTROLS_DIV_ID: string = 'smart-word-hints-overlay-control
 export const CLOSE_OVERLAY_EVENT_NAME: string = 'closeSmartWordHintsOverlay';
 
 export const DEFAULT_API_URL: string = 'http://localhost/api/get_hints';
+
+export const IS_EDGE = navigator.userAgent.indexOf('Edg') >= 0;
+export const IS_FIREFOX = navigator.userAgent.indexOf('Firefox') >= 0;
+export const IS_CHROME = IS_EDGE === false && IS_FIREFOX === false;
