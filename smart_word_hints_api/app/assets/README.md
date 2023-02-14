@@ -1,6 +1,6 @@
 # Assets
 
-## ranking_common_en.txt[ranking_common_en.txt](ranking_common_en.txt)
+## [ranking_common_en.txt](ranking_common_en.txt)
 
 (legacy) English words sorted from more to less common.
 
@@ -29,7 +29,7 @@ A |-delimited CSV file that lists the (lemma,pos) tuples from more to less commo
 
 A |-delimited CSV file that lists the lemmas from more to less common.
 
-## english_phrasal_verbs.txt[english_phrasal_verbs.txt](english_phrasal_verbs.txt)
+## [english_phrasal_verbs.txt](english_phrasal_verbs.txt)
 
 List of English phrasal verbs scraped from `wiktionary.org`.
 
