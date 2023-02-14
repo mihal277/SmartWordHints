@@ -16,7 +16,7 @@ For example, a hint for `bank` might be shown in the sentence
 as the lemma bank in this context is not so frequent , but not in the sentence 
 `I went to the bank to deposit some money`.
 
-### amalgum[amalgum_freq_list.csv](amalgum_freq_list.csv)
+### [amalgum_freq_list.csv](amalgum_freq_list.csv)
 
 A |-delimited CSV file that lists the (lemma,sense,pos) tuples from more to less common.
 
