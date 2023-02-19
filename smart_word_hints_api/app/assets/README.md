@@ -36,3 +36,7 @@ List of English phrasal verbs scraped from `wiktionary.org`.
 Scraped using `scripts/scrapers/scrape_wiktionary_phrasal_verbs_list.py`.
 Then the phrasal verbs that were have no WordNet translations
 were filtered out using `scripts/assets_postprocessing/clean_phrasal_verbs_list.py`.
+
+## [simplified_definitions.csv](simplified_definitions.csv)
+
+Simplified WordNet definitions from `amalgum_freq_list.csv` using GPT3 (see `scripts/simple_definitions`).
