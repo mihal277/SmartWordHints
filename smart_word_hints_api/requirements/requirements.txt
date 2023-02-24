@@ -68,7 +68,7 @@ nltk==3.6.7
     # via
     #   -r requirements.in
     #   pywsd
-numpy==1.21.4
+numpy==1.22.0
     # via
     #   blis
     #   pandas
