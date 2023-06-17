@@ -1,12 +1,13 @@
 import csv
 from typing import Any
 
-import backoff
-import openai
+from scripts.wsd_dataset_generation.chatgpt import get_single_response_from_chat_gpt
 
 INPUT_PATH = "input_data_sentences_to_generate.csv"
 OUTPUT_PATH = "new_sentences.csv"
-OUTPUT_HEADER = "lemma|pos|definition|synset_key_name|example|new_sentence\n"
+OUTPUT_HEADER = (
+    "lemma|human_readable_pos|definition|synset_key_name|example|new_sentence\n"
+)
 GPT_PROMPT_TEMPLATE = """{pos} "{lemma}" can mean, among others: {definition}. 
 Example sentence: {example} 
 Write a different example sith {pos} "{lemma}" with exactly this meaning:
@@ -35,25 +36,6 @@ def get_synsets_for_which_already_generated() -> set[str]:
         return set([row["synset_key_name"] for row in reader])
 
 
-@backoff.on_exception(backoff.expo, openai.error.RateLimitError)
-def generate_sentence_with_chat_gpt(gpt_prompt: str) -> str:
-    return openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are an assistant that generates correct sentences.",
-            },
-            {"role": "user", "content": gpt_prompt},
-        ],
-        temperature=0.5,
-        max_tokens=256,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
-    )["choices"][0]["message"]["content"]
-
-
 def generate_sentences():
     create_output_if_doesnt_exist()
     synsets_already_generated = get_synsets_for_which_already_generated()
@@ -71,11 +53,11 @@ def generate_sentences():
                 definition=sentence_to_generate_data["definition"],
                 example=sentence_to_generate_data["example"],
             )
-            new_sentence = generate_sentence_with_chat_gpt(prompt)
+            new_sentence = get_single_response_from_chat_gpt(prompt)
             output_writer.writerow(
                 [
                     sentence_to_generate_data["lemma"],
-                    sentence_to_generate_data["pos"],
+                    sentence_to_generate_data["human_readable_pos"],
                     sentence_to_generate_data["definition"],
                     sentence_to_generate_data["synset_key_name"],
                     sentence_to_generate_data["example"],

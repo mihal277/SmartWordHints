@@ -1,11 +1,11 @@
-import torch
-from nltk.corpus import wordnet as wn
-import transformers
-import spacy
 from xml.etree import ElementTree as ET
 
+import torch
+import transformers
+from esr.code.esr.dataset.dataset_semcor_wngc import DataCollatorForWsd, WsdDataset
 from esr.code.esr.model import RobertaForWsd
-from esr.code.esr.dataset.dataset_semcor_wngc import WsdDataset, DataCollatorForWsd
+from lemmatization import LemmatizedSentence
+from nltk.corpus import wordnet as wn
 
 
 def get_config(model_name: str):
@@ -20,27 +20,35 @@ def get_pretrained_model(model, checkpoint_path: str, config):
     return model.from_pretrained(checkpoint_path, config=config)
 
 
-CHECKPOINT_PATH = (
+CHECKPOINT_PATH_LARGE = (
     "esr/experiment/esr/roberta-large/"
     "dataset_semcor_wngc/sd_42/"
     "a100_b16_b16_lr8.5e-6_lim348/model/"
     "pytorch_model.bin"
 )
-MODEL_NAME = "roberta-large"
+MODEL_NAME_LARGE = "roberta-large"
+config_large = get_config(MODEL_NAME_LARGE)
+tokenizer_large = get_tokenizer(MODEL_NAME_LARGE)
+pretrained_model_large = get_pretrained_model(
+    RobertaForWsd, CHECKPOINT_PATH_LARGE, config_large
+)
 
-config = get_config(MODEL_NAME)
-tokenizer = get_tokenizer(MODEL_NAME)
-pretrained_model = get_pretrained_model(RobertaForWsd, CHECKPOINT_PATH, config)
-nlp_en = spacy.load("en_core_web_trf")
 
-
-def lemmatize_sentence(sentence: str) -> list[tuple[str, str, str]]:
-    nlp_en(sentence)
-    return [(token.text, token.lemma_, token.pos_) for token in nlp_en(sentence)]
+CHECKPOINT_PATH_BASE = (
+    "esr/experiment/esr/roberta-base/"
+    "dataset_semcor_wngc/sd_42/rtx3090_b32_b32_lr8.5e-6/"
+    "model/pytorch_model.bin"
+)
+MODEL_NAME_BASE = "roberta-base"
+config_base = get_config(MODEL_NAME_BASE)
+tokenizer_base = get_tokenizer(MODEL_NAME_BASE)
+pretrained_model_base = get_pretrained_model(
+    RobertaForWsd, CHECKPOINT_PATH_BASE, config_base
+)
 
 
 def sentence_to_xml(
-    sentence: str,
+    lemmatized_sentence: LemmatizedSentence,
     filename: str,
     lemma_to_translate: str,
     inedex_of_lemma_to_translate: int,
@@ -54,7 +62,7 @@ def sentence_to_xml(
 
     lemma_i = 0
     at_least_one_instance_present = False
-    for i, (word, lemma, pos) in enumerate(lemmatize_sentence(sentence)):
+    for i, (word, lemma, pos) in enumerate(lemmatized_sentence):
         element_name = "wf"
         if lemma == lemma_to_translate:
             if lemma_i == inedex_of_lemma_to_translate:
@@ -79,10 +87,24 @@ def sentence_to_xml(
 
 
 def disambiguate_sentence(
-    sentence: str, lemma_to_disambiguate: str, lemma_to_disambiguate_i: int = 0
+    lemmatized_sentence: LemmatizedSentence,
+    lemma_to_disambiguate: str,
+    lemma_to_disambiguate_i: int = 0,
+    model_name: str = MODEL_NAME_LARGE,
 ) -> wn.synset:
     xml_path = "temp_xml.xml"
-    sentence_to_xml(sentence, xml_path, lemma_to_disambiguate, lemma_to_disambiguate_i)
+    sentence_to_xml(
+        lemmatized_sentence, xml_path, lemma_to_disambiguate, lemma_to_disambiguate_i
+    )
+
+    if model_name == MODEL_NAME_LARGE:
+        model = pretrained_model_large
+        tokenizer = tokenizer_large
+    elif model_name == MODEL_NAME_BASE:
+        model = pretrained_model_base
+        tokenizer = tokenizer_base
+    else:
+        raise ValueError(f"unknown model {model_name}")
 
     dataset = WsdDataset(
         tokenizer,
@@ -97,7 +119,7 @@ def disambiguate_sentence(
 
     batch = DataCollatorForWsd()(dataset)
     with torch.no_grad():
-        preds = pretrained_model(**batch)[0]
+        preds = model(**batch)[0]
 
     examples = dataset.get_example_list()
 
