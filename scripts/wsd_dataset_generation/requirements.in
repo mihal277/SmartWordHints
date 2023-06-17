@@ -3,3 +3,5 @@ spacy
 torch
 transformers
 spacy-transformers
+openai
+backoff
