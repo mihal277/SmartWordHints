@@ -11,3 +11,11 @@ python -m spacy download $(cat spacy_modules.txt)
 
 Finally, download the trained ESR models 
 ([README.md](esr%2FREADME.md) -> section `Using trained models`)
+
+## Running
+
+### Generate new sentences
+
+```commandline
+OPENAI_API_KEY=<OPENAI_API_KEY> python get_new_sentences_with_chat_gpt.py
+```

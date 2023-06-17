@@ -78,7 +78,6 @@ def sentence_to_xml(
     tree.write(filename)
 
 
-
 def disambiguate_sentence(
     sentence: str, lemma_to_disambiguate: str, lemma_to_disambiguate_i: int = 0
 ) -> wn.synset:
