@@ -1,0 +1,5 @@
+nltk
+spacy
+torch
+transformers
+spacy-transformers
