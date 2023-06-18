@@ -52,19 +52,22 @@ def generate_sentences():
                 definition=sentence_to_generate_data["definition"],
                 example=sentence_to_generate_data["example"],
             )
-            new_sentence = get_single_response_from_chat_gpt(prompt)
+            new_sentence = get_single_response_from_chat_gpt(prompt, temperature=1.5)
             output_writer.writerow(
                 [
                     sentence_to_generate_data["index"],
                     sentence_to_generate_data["lemma"],
                     sentence_to_generate_data["human_readable_pos"],
                     sentence_to_generate_data["definition"],
-                    sentence_to_generate_data["synset_key_name"],
+                    # fixing incorrect serialization in input
+                    sentence_to_generate_data["synset_key_name"][
+                        len("Synset('") : -len("')")
+                    ],
                     sentence_to_generate_data["example"],
                     new_sentence,
                 ]
             )
-            already_generated.add(sentence_to_generate_data["synset_key_name"])
+            already_generated.add(sentence_to_generate_data["index"])
             f.flush()
 
 
