@@ -75,7 +75,7 @@ def sentence_to_xml(
             sentence_element,
             element_name,
             lemma=lemma,
-            pos=pos,
+            pos="VERB" if pos == "AUX" else pos,
             id=f"d000.s000.t{str(i).zfill(3)}",
         ).text = word
 

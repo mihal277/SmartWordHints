@@ -29,3 +29,6 @@ OPENAI_API_KEY=<OPENAI_API_KEY> python get_new_sentences_with_chat_gpt.py
 ```
 
 ### Verifying the correctness of the generated sentences
+```commandline
+OPENAI_API_KEY=<OPENAI_API_KEY> python verify_examples.py
+```
