@@ -1,12 +1,12 @@
 import csv
 from typing import Any
 
-from scripts.wsd_dataset_generation.chatgpt import get_single_response_from_chat_gpt
+from chatgpt import get_single_response_from_chat_gpt
 
 INPUT_PATH = "input_data_sentences_to_generate.csv"
 OUTPUT_PATH = "new_sentences.csv"
 OUTPUT_HEADER = (
-    "lemma|human_readable_pos|definition|synset_key_name|example|new_sentence\n"
+    "index|lemma|human_readable_pos|definition|synset_key_name|example|new_sentence\n"
 )
 GPT_PROMPT_TEMPLATE = """{pos} "{lemma}" can mean, among others: {definition}. 
 Example sentence: {example} 
@@ -30,32 +30,32 @@ def create_output_if_doesnt_exist() -> None:
             f.write(OUTPUT_HEADER)
 
 
-def get_synsets_for_which_already_generated() -> set[str]:
+def get_already_generated() -> set[str]:
     with open(OUTPUT_PATH, newline="", encoding="utf_8") as csvfile:
         reader = csv.DictReader(csvfile, delimiter="|")
-        return set([row["synset_key_name"] for row in reader])
+        return set([row["index"] for row in reader])
 
 
 def generate_sentences():
     create_output_if_doesnt_exist()
-    synsets_already_generated = get_synsets_for_which_already_generated()
+    already_generated = get_already_generated()
     with open(OUTPUT_PATH, "a", encoding="utf_8") as f:
         output_writer = csv.writer(f, delimiter="|")
         for sentence_to_generate_data in load_input():
-            if (
-                sentence_to_generate_data["synset_key_name"]
-                in synsets_already_generated
-            ):
+            if sentence_to_generate_data["index"] in already_generated:
                 continue
+            lemma = sentence_to_generate_data["lemma"]
+            pos = sentence_to_generate_data["human_readable_pos"]
             prompt = GPT_PROMPT_TEMPLATE.format(
-                pos=sentence_to_generate_data["pos"],
-                lemma=sentence_to_generate_data["lemma"],
+                pos="phrasal verb" if "_" in lemma and pos == "verb" else pos,
+                lemma=lemma.replace("_", " "),
                 definition=sentence_to_generate_data["definition"],
                 example=sentence_to_generate_data["example"],
             )
             new_sentence = get_single_response_from_chat_gpt(prompt)
             output_writer.writerow(
                 [
+                    sentence_to_generate_data["index"],
                     sentence_to_generate_data["lemma"],
                     sentence_to_generate_data["human_readable_pos"],
                     sentence_to_generate_data["definition"],
@@ -64,7 +64,7 @@ def generate_sentences():
                     new_sentence,
                 ]
             )
-            synsets_already_generated.add(sentence_to_generate_data["synset_key_name"])
+            already_generated.add(sentence_to_generate_data["synset_key_name"])
             f.flush()
 
 

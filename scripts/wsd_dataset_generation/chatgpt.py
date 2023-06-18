@@ -6,7 +6,7 @@ import openai
 def get_single_response_from_chat_gpt(
     gpt_prompt: str,
     model: str = "gpt-3.5-turbo",
-    temperature: float = 0.3,
+    temperature: float = 1,
     system_message: str = "You are an assistant that generates correct sentences.",
 ) -> str:
     return openai.ChatCompletion.create(
