@@ -52,6 +52,7 @@ def verify_with_gpt__disambiguate(
         gpt_prompt=prompt,
         model="gpt-4",
         system_message="You are an assistant that responses with a number.",
+        temperature=0
     )
     print(chat_gpt_response)
     matches = re.findall(r"\d+", chat_gpt_response)
