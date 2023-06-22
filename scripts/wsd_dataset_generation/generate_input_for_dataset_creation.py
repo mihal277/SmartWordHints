@@ -1,4 +1,5 @@
 import csv
+import json
 import math
 import xml.etree.ElementTree as ET
 
@@ -59,24 +60,28 @@ def sentence_contains_lemma(sentence: str, lemma: str) -> bool:
     return False
 
 
-def choose_example_sentence(
-    semcor_examples: list[str], lemma: str, synset: wn.synset
-) -> str:
-    # preferably a short one u
+def choose_example_sentence(semcor_examples: list[str], lemma: str, synset) -> str:
+    # Preferences:
+    #   - shortest wordnet example, if exists
+    #   - otherwise, shortest example from semcor
     examples_from_wordnet = [
         example
         for example in synset.examples()
         if sentence_contains_lemma(example, lemma)
     ]
-    return sorted(semcor_examples + examples_from_wordnet, key=lambda x: len(x))[0]
+    if examples_from_wordnet:
+        return sorted(examples_from_wordnet, key=lambda x: len(x))[0]
+    if semcor_examples:
+        return sorted(semcor_examples, key=lambda x: len(x))[0]
+    return ""
 
 
 def get_example(
     lemma, pos, synset, lemma_pos_synset__to__instance_ids, sent_id_to_sentence
 ):
-    instances_for_that_lemma_pos_synset = lemma_pos_synset__to__instance_ids[
-        (lemma, pos, synset)
-    ]
+    instances_for_that_lemma_pos_synset = lemma_pos_synset__to__instance_ids.get(
+        (lemma, pos, synset), []
+    )
 
     semcor_examples = [
         sent_id_to_sentence[".".join(instance_for_that_lemma_pos_synset.split(".")[:2])]
@@ -95,6 +100,7 @@ def get_dataset_mappings():
     sent_id_to_sentence = {}
     lemma_pos__to__synset_count = {}
     lemma_pos_synset__to__instance_ids = {}
+    all_instance_synsets = set()
 
     with open(SEMCOR_GOLD_PATH, "r") as file:
         for line in file.readlines():
@@ -138,6 +144,11 @@ def get_dataset_mappings():
             lemma_pos_synset__to__instance_ids.setdefault(lemma_pos_synset, [])
             lemma_pos_synset__to__instance_ids[lemma_pos_synset].append(instance_id)
 
+    for synsets in id_to_expected_synsets.values():
+        for synset in synsets:
+            assert not isinstance(synset, str)
+            all_instance_synsets.add(synset)
+
     return (
         id_to_lemma,
         id_to_pos,
@@ -147,6 +158,7 @@ def get_dataset_mappings():
         sent_id_to_sentence,
         lemma_pos__to__synset_count,
         lemma_pos_synset__to__instance_ids,
+        all_instance_synsets,
     )
 
 
@@ -155,7 +167,7 @@ def is_majority_sense_more_than(sense__to__count, cutoff):
 
 
 def get_non_majority_senses_for_which_to_generate_examples_and_count(
-    synset_counter: dict[wn.synset, int]
+    synset_counter: dict,
 ) -> tuple[set, int]:
     majority_sense_cnt = max(synset_counter.values())
     other_senses_cnt = sum(synset_counter.values()) - max(synset_counter.values())
@@ -228,6 +240,40 @@ def get_lemma_pos__to__synset_count_to_generate(lemma_pos__to__existing_synset_c
     return lemma_pos__to__synset_count_to_generate
 
 
+def get_definitions_and_examples_for_other_senses_as_json(
+    lemma: str,
+    pos: str,
+    wanted_synset,
+    lemma_pos_synset__to__instance_ids: dict,
+    sent_id_to_sentence: dict[str, str],
+    all_instance_synsets: set,
+) -> str:
+    assert not isinstance(wanted_synset, str)
+    other_synsets_to_consider = [
+        synset
+        for synset in wn.synsets(lemma, pos=SEMCOR_POS__TO__WN_POS[pos])
+        if synset != wanted_synset
+        and (synset not in all_instance_synsets or len(synset.examples()))
+    ]
+    return json.dumps(
+        {
+            synset.definition(): get_example(
+                lemma,
+                pos,
+                synset,
+                lemma_pos_synset__to__instance_ids,
+                sent_id_to_sentence,
+            )
+            for synset in other_synsets_to_consider
+        }
+    )
+
+
+def get_top_english_words() -> set[str]:
+    with open("top_english_words.txt", "r") as f:
+        return set(line.lower().strip() for line in f.readlines())
+
+
 def generate_input():
     (
         _,
@@ -238,7 +284,9 @@ def generate_input():
         sent_id_to_sentence,
         lemma_pos__to__existing_synset_count,
         lemma_pos_synset__to__instance_ids,
+        all_instance_synsets,
     ) = get_dataset_mappings()
+    top_english_words = get_top_english_words()
     lemma_pos__to__synset_count_to_generate = (
         get_lemma_pos__to__synset_count_to_generate(
             lemma_pos__to__existing_synset_count
@@ -253,6 +301,7 @@ def generate_input():
             "synset_key_name",
             "definition",
             "example",
+            "other_definitions_and_examples",
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter="|")
         writer.writeheader()
@@ -261,6 +310,8 @@ def generate_input():
             lemma,
             pos,
         ), synset_to_count in lemma_pos__to__synset_count_to_generate.items():
+            if lemma.lower() in top_english_words:
+                continue
             for synset, how_many_to_generate in synset_to_count.items():
                 definition = synset.definition()
                 example = get_example(
@@ -269,6 +320,16 @@ def generate_input():
                     synset,
                     lemma_pos_synset__to__instance_ids,
                     sent_id_to_sentence,
+                )
+                other_definitions_and_examples = (
+                    get_definitions_and_examples_for_other_senses_as_json(
+                        lemma,
+                        pos,
+                        synset,
+                        lemma_pos_synset__to__instance_ids,
+                        sent_id_to_sentence,
+                        all_instance_synsets,
+                    )
                 )
                 for _ in range(how_many_to_generate):
                     writer.writerow(
@@ -281,6 +342,7 @@ def generate_input():
                             "synset_key_name": synset,
                             "definition": definition,
                             "example": example,
+                            "other_definitions_and_examples": other_definitions_and_examples,
                         }
                     )
                     i += 1

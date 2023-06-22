@@ -126,7 +126,10 @@ def verify_example(
     }
 
     lemmatized_sentence = lemmatize_sentence(sentence)
-    if example_actually_contains_exactly_one_lemma(lemmatized_sentence, lemma) == "Incorrect":
+    if (
+        example_actually_contains_exactly_one_lemma(lemmatized_sentence, lemma)
+        == "Incorrect"
+    ):
         result["v__contains_lemma"] = "Incorrect"
         return result
 
