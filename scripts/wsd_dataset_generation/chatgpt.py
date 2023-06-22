@@ -2,7 +2,9 @@ import backoff
 import openai
 
 
-@backoff.on_exception(backoff.expo, openai.error.RateLimitError)
+@backoff.on_exception(
+    backoff.expo, [openai.error.RateLimitError, openai.error.ServiceUnavailableError]
+)
 def get_single_response_from_chat_gpt(
     gpt_prompt: str,
     model: str = "gpt-3.5-turbo",
