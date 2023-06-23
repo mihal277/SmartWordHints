@@ -29,7 +29,8 @@ OUTPUT_HEADER = (
     "v__esr_base|"
     "v__esr_large|"
     "v__gpt35__disambiguate|"
-    "v__gpt35__verify\n"
+    "v__gpt35__verify|"
+    "v__number_of_successes|\n"
 )
 
 
@@ -189,7 +190,14 @@ def verify_examples():
                 generated_example["lemma"],
                 wn.synset(generated_example["synset_key_name"]),
             )
-            result = {**generated_example, **verification}
+            number_of_successes = sum(
+                map(lambda x: x == "Correct", verification.values())
+            )
+            result = {
+                **generated_example,
+                **verification,
+                "v__number_of_successes": number_of_successes,
+            }
             writer.writerow(result)
             already_verified.add(generated_example["index"])
             csvfile.flush()
