@@ -28,6 +28,9 @@ note: this was already done and the result is [input_data_sentences_to_generate.
 OPENAI_API_KEY=<OPENAI_API_KEY> python get_new_sentences_with_chat_gpt.py
 ```
 
+note: this was already done and the result is [new_sentences.csv](new_sentences.csv)
+
+
 ### Verifying the correctness of the generated sentences
 ```commandline
 OPENAI_API_KEY=<OPENAI_API_KEY> python verify_examples.py
