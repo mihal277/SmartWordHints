@@ -1,11 +1,17 @@
+from typing import NamedTuple
 from xml.etree import ElementTree as ET
 
 import torch
 import transformers
 from esr.code.esr.dataset.dataset_semcor_wngc import DataCollatorForWsd, WsdDataset
 from esr.code.esr.model import RobertaForWsd
-from lemmatization import LemmatizedSentence
+from lemmatization import LemmatizedSentence, lemmatize_sentence
 from nltk.corpus import wordnet as wn
+
+
+class WSDResult(NamedTuple):
+    top_synset: wn.synset
+    synset__to__score: dict[wn.synset, float]
 
 
 def get_config(model_name: str):
@@ -91,7 +97,7 @@ def disambiguate_sentence(
     lemma_to_disambiguate: str,
     lemma_to_disambiguate_i: int = 0,
     model_name: str = MODEL_NAME_LARGE,
-) -> wn.synset:
+) -> WSDResult:
     xml_path = "temp_xml.xml"
     sentence_to_xml(
         lemmatized_sentence, xml_path, lemma_to_disambiguate, lemma_to_disambiguate_i
@@ -125,9 +131,9 @@ def disambiguate_sentence(
 
     assert len(preds) == len(examples)
     result_softmax = {}
-    for (instance_id, lemma_key, *_), pred in zip(examples, preds):
+    for (instance_id, sense_key, *_), pred in zip(examples, preds):
         result_softmax.setdefault(instance_id, {})
-        result_softmax[instance_id][lemma_key] = pred
+        result_softmax[instance_id][wn.synset_from_sense_key(sense_key)] = pred
 
     result = {}
     for instance_id, softmax_result in result_softmax.items():
@@ -135,4 +141,9 @@ def disambiguate_sentence(
         result[instance_id] = max(softmax_result, key=lambda x: softmax_result[x])
 
     assert len(result) == 1
-    return wn.synset_from_sense_key(list(result.values())[0])
+    return WSDResult(
+        top_synset=list(result.values())[0],
+        synset__to__score={
+            key: float(value) for key, value in list(result_softmax.values())[0].items()
+        },
+    )
