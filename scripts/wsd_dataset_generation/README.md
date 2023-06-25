@@ -33,5 +33,5 @@ note: this was already done and the result is [new_sentences.csv](new_sentences.
 
 ### Verifying the correctness of the generated sentences
 ```commandline
-OPENAI_API_KEY=<OPENAI_API_KEY> python verify_examples.py
+OPENAI_API_KEY=<OPENAI_API_KEY> python verify_examples.py --input new_sentences.csv --output new_sentences_verified.csv
 ```
