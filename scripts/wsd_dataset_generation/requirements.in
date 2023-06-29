@@ -5,3 +5,7 @@ transformers
 spacy-transformers
 openai
 backoff
+numpy
+pandas
+scikit-learn
+imbalanced-learn
