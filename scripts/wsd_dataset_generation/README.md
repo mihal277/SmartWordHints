@@ -31,7 +31,13 @@ OPENAI_API_KEY=<OPENAI_API_KEY> python get_new_sentences_with_chat_gpt.py
 note: this was already done and the result is [new_sentences.csv](new_sentences.csv)
 
 
-### Verifying the correctness of the generated sentences
+### Verifying the correctness of the generated sentences (automatic)
 ```commandline
 OPENAI_API_KEY=<OPENAI_API_KEY> python verify_examples.py --input new_sentences.csv --output new_sentences_verified.csv
+```
+
+### Verifying the correctness of the generated sentences (human)
+```commandline
+python human_verification.py --input new_sentences_verified.csv --output new_sentences_verified_with_human_verification.csv --number_of_sentences 500
+
 ```
