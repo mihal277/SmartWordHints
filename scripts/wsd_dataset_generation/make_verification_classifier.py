@@ -1,6 +1,4 @@
 import argparse
-import copy
-import dataclasses
 from dataclasses import dataclass
 from typing import Any
 
@@ -28,7 +26,7 @@ from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, Normalizer
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
@@ -85,7 +83,13 @@ def _get_model(model_name: str, random_state: int):
 
 
 def get_majority_voting_model(
-    trained_models: list[ModelResult], train_data: dict, X_test, y_test, random_state=42
+    trained_models: list[ModelResult],
+    train_data: dict,
+    X_test,
+    y_test,
+    random_state=42,
+    min_model_gmean: float = 0.8,
+    max_estimators: int = 3,
 ) -> Any:
     already_used_model_types_for_ensamble = set()
     trained_models = sorted(trained_models, key=lambda result: -result.gmean)
@@ -95,7 +99,7 @@ def get_majority_voting_model(
     for trained_model in trained_models:
         if trained_model.model_name in already_used_model_types_for_ensamble:
             continue
-        if trained_model.gmean < 0.82:
+        if trained_model.gmean < min_model_gmean:
             break
         estimators.append(
             (
@@ -104,9 +108,8 @@ def get_majority_voting_model(
             )
         )
         already_used_model_types_for_ensamble.add(trained_model.model_name)
-
-    print(f"Size of estimators: {len(estimators)}")
-    print("Estimators: ", estimators)
+        if len(estimators) == max_estimators:
+            break
 
     best_gmean = 0.0
     best_model = None
@@ -123,15 +126,20 @@ def get_majority_voting_model(
     return best_model
 
 
-def test(X_test, y_test, model):
+def test(X_test, y_test, model, do_print: bool = True):
     y_pred = model.predict(X_test)
-    print("F1 score:", f1_score(y_test, y_pred))
-    print("Accuracy score:", accuracy_score(y_test, y_pred))
-    print("G-mean score:", geometric_mean_score(y_test, y_pred))
-    print()
+    f1 = f1_score(y_test, y_pred)
+    acc = accuracy_score(y_test, y_pred)
+    gmean = geometric_mean_score(y_test, y_pred)
+    if do_print:
+        print("F1 score:", f1)
+        print("Accuracy score:", acc)
+        print("G-mean score:", gmean)
+        print()
+    return f1, acc, gmean
 
 
-def train(df: pd.DataFrame) -> Any:
+def train(df: pd.DataFrame, use_normalizing: bool = True) -> Any:
     random_state = 42
 
     X = df.iloc[:, :-1]
@@ -141,13 +149,14 @@ def train(df: pd.DataFrame) -> Any:
         X, y, test_size=0.2, random_state=random_state, stratify=y
     )
 
-    # todo: make a hyperparameter
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    scaler.fit(X_train)
+    if use_normalizing:
+        scaler = Normalizer()
+        scaler.fit(X_train)
 
     X_train_colmns = X_train.columns
-    X_train = scaler.transform(X_train)
-    X_test = scaler.transform(X_test)
+    if use_normalizing:
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
 
     train_data = {}
     for oversampler_class in [
@@ -221,28 +230,46 @@ def train(df: pd.DataFrame) -> Any:
     test(X_test, y_test, best_model)
 
     # testing on entire dataset
-    X_scaled = scaler.transform(X)
-    print(f"Test best model on entire dataset (size: {len(X_scaled)}):")
-    test(X_scaled, y, best_model)
+    print(f"Test best model on entire dataset (size: {len(X)}):")
+    if use_normalizing:
+        X_scaled = scaler.transform(X)
+        test(X_scaled, y, best_model)
+    else:
+        test(X, y, best_model)
 
-    majority_voting_model = get_majority_voting_model(
-        trained_models, train_data, X_test, y_test
-    )
-    print(f"Test majority voting model on X_test (size: {len(X_test)})")
-    test(X_test, y_test, majority_voting_model)
+    best_gmean_majority = 0.0
+    best_majority = None
+    for min_model_gmean in [0.7, 0.75, 0.8, 0.85]:
+        for max_estimators in [3, 4, 5, 10]:
+            majority_voting_model = get_majority_voting_model(
+                trained_models,
+                train_data,
+                X_test,
+                y_test,
+                random_state=random_state,
+                min_model_gmean=min_model_gmean,
+                max_estimators=max_estimators,
+            )
+            f1, acc, gmean = test(X_test, y_test, majority_voting_model, do_print=False)
+            if gmean > best_gmean_majority:
+                best_majority = majority_voting_model
+    print(f"Test best majority model on X_test (size: {len(X_test)})")
+    test(X_test, y_test, best_majority, do_print=True)
+    print("Estimators: ", best_majority.estimators)
 
-    return best_model, majority_voting_model
+    return best_model, best_majority
 
 
-def get_model(input_path: str) -> SVC:
-    return train(prepare_dataset(input_path))
+def get_model(input_path: str, use_normalizing: True) -> SVC:
+    return train(prepare_dataset(input_path), use_normalizing=use_normalizing)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, required=True)
+    parser.add_argument("--use_normalizing", type=bool, required=False, default=True)
     args = parser.parse_args()
-    model, majority_vote_model = get_model(args.input)
+    model, majority_vote_model = get_model(args.input, args.use_normalizing)
 
 
 if __name__ == "__main__":
