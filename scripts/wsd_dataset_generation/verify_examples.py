@@ -4,26 +4,14 @@ import re
 from typing import Any, Literal
 
 from chatgpt import get_single_response_from_chat_gpt
-from constants import VERIFICATION_KEYS
+from constants import (
+    VERIFICATION_KEYS,
+    WORDNET_POS__TO__HUMAN_READABLE_POS,
+    WORDNET_POS__TO__LEMMATIZATION_POS,
+)
 from lemmatization import LemmatizedSentence, lemmatize_sentence
 from nltk.corpus import wordnet as wn
 from run_esr import MODEL_NAME_BASE, MODEL_NAME_LARGE, disambiguate_sentence
-
-WORDNET_POS__TO__HUMAN_READABLE_POS = {
-    wn.ADJ: "adjective",
-    wn.ADJ_SAT: "adjective",
-    wn.ADV: "adverb",
-    wn.NOUN: "noun",
-    wn.VERB: "verb",
-}
-
-WORDNET_POS__TO__LEMMATIZATION_POS = {
-    wn.ADJ: "ADJ",
-    wn.ADJ_SAT: "ADJ",
-    wn.ADV: "ADV",
-    wn.NOUN: "NOUN",
-    wn.VERB: "VERB",
-}
 
 CheckResult = Literal["Correct", "Incorrect", "Error", "Not tried"]
 
@@ -44,7 +32,12 @@ def is_correct_example_using_esr(
     expected_synset: wn.synset,
     model_name: str,
 ) -> tuple[CheckResult, float, float]:
-    wsd_result = disambiguate_sentence(lemmatized_sentence, lemma, 0, model_name)
+    try:
+        wsd_result = disambiguate_sentence(
+            lemmatized_sentence, lemma, expected_synset.pos(), 0, model_name
+        )
+    except:
+        return "Error", 0.0, 0.0
     if wsd_result.top_synset == expected_synset:
         correct_or_incorrect = "Correct"
     else:
@@ -147,7 +140,7 @@ def verify_example(generated_example: dict) -> dict[str, CheckResult]:
         )
         == "Incorrect"
     ):
-        if result["v__contains_lemma"] != "Incorrect":
+        if result["v__contains_lemma"] == "Correct":
             print(f"Other decision of contains_lemma for {generated_example['index']}")
         return {**{key: NOT_TRIED for key in result}, "v__contains_lemma": "Incorrect"}
 
@@ -239,6 +232,7 @@ def create_output_if_doesnt_exist(output_path: str) -> None:
 def verify_examples(input_path: str, output_path: str, start_from_index: int) -> None:
     generated_examples = load_input(input_path)
     create_output_if_doesnt_exist(output_path)
+    number_of_esr_errors = 0
     with open(output_path, "a", encoding="utf_8") as csvfile:
         writer = csv.DictWriter(
             csvfile,
@@ -248,9 +242,14 @@ def verify_examples(input_path: str, output_path: str, start_from_index: int) ->
         for generated_example in generated_examples:
             if int(generated_example["index"]) < start_from_index:
                 continue
+            verification = verify_example(generated_example)
+            if "Error" in [verification["v__esr_base"], verification["v__esr_large"]]:
+                number_of_esr_errors += 1
+            if number_of_esr_errors > 20:
+                raise ValueError
             result = {
                 **generated_example,
-                **verify_example(generated_example),
+                **verification,
             }
             if "" in result:
                 del result[""]

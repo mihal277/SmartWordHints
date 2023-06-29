@@ -3,9 +3,10 @@ from xml.etree import ElementTree as ET
 
 import torch
 import transformers
+from constants import WORDNET_POS__TO__LEMMATIZATION_POS
 from esr.code.esr.dataset.dataset_semcor_wngc import DataCollatorForWsd, WsdDataset
 from esr.code.esr.model import RobertaForWsd
-from lemmatization import LemmatizedSentence, lemmatize_sentence
+from lemmatization import LemmatizedSentence
 from nltk.corpus import wordnet as wn
 
 
@@ -58,6 +59,7 @@ def sentence_to_xml(
     filename: str,
     lemma_to_translate: str,
     inedex_of_lemma_to_translate: int,
+    pos_to_disambiguate: str,
 ) -> None:
     # we want to use esr without much modification, so we create a fake xml dataset
     # from the sentence
@@ -70,7 +72,10 @@ def sentence_to_xml(
     at_least_one_instance_present = False
     for i, (word, lemma, pos) in enumerate(lemmatized_sentence):
         element_name = "wf"
-        if lemma == lemma_to_translate:
+        if (
+            lemma == lemma_to_translate
+            and WORDNET_POS__TO__LEMMATIZATION_POS[pos_to_disambiguate] == pos
+        ):
             if lemma_i == inedex_of_lemma_to_translate:
                 element_name = "instance"
                 at_least_one_instance_present = True
@@ -95,12 +100,17 @@ def sentence_to_xml(
 def disambiguate_sentence(
     lemmatized_sentence: LemmatizedSentence,
     lemma_to_disambiguate: str,
+    pos_to_disambiguate: str,
     lemma_to_disambiguate_i: int = 0,
     model_name: str = MODEL_NAME_LARGE,
 ) -> WSDResult:
     xml_path = "temp_xml.xml"
     sentence_to_xml(
-        lemmatized_sentence, xml_path, lemma_to_disambiguate, lemma_to_disambiguate_i
+        lemmatized_sentence,
+        xml_path,
+        lemma_to_disambiguate,
+        lemma_to_disambiguate_i,
+        pos_to_disambiguate,
     )
 
     if model_name == MODEL_NAME_LARGE:
