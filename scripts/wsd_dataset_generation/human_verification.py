@@ -84,6 +84,8 @@ def verify_as_human(
                             )
                             for i, synset in enumerate(synsets):
                                 print(f"{i}: {synset.definition()}")
+                                if synset.examples():
+                                    print(f"  {'; '.join(synset.examples())}")
 
                     already_done.add(sentence_data["index"])
 
