@@ -90,7 +90,7 @@ def get_majority_voting_model(
     random_state=42,
     min_model_gmean: float = 0.8,
     max_estimators: int = 3,
-) -> Any:
+) -> Any | None:
     already_used_model_types_for_ensamble = set()
     trained_models = sorted(trained_models, key=lambda result: -result.gmean)
 
@@ -110,6 +110,9 @@ def get_majority_voting_model(
         already_used_model_types_for_ensamble.add(trained_model.model_name)
         if len(estimators) == max_estimators:
             break
+
+    if len(estimators) == 0:
+        return None
 
     best_gmean = 0.0
     best_model = None
@@ -250,6 +253,8 @@ def train(df: pd.DataFrame, use_normalizing: bool = True) -> Any:
                 min_model_gmean=min_model_gmean,
                 max_estimators=max_estimators,
             )
+            if majority_voting_model is None:
+                continue
             f1, acc, gmean = test(X_test, y_test, majority_voting_model, do_print=False)
             if gmean > best_gmean_majority:
                 best_majority = majority_voting_model
