@@ -1,15 +1,22 @@
+import logging
+
 import backoff
-import openai
+from openai import ChatCompletion
+from openai.error import APIError, ServiceUnavailableError, Timeout, TryAgain
+
+logging.getLogger("backoff").addHandler(logging.StreamHandler())
 
 
-@backoff.on_exception(backoff.expo, openai.error.OpenAIError)
+@backoff.on_exception(
+    backoff.expo, (APIError, TryAgain, Timeout, ServiceUnavailableError)
+)
 def get_single_response_from_chat_gpt(
     gpt_prompt: str,
     model: str = "gpt-3.5-turbo",
     temperature: float = 1,
     system_message: str = "You are a helpful assistant.",
 ) -> str:
-    return openai.ChatCompletion.create(
+    return ChatCompletion.create(
         model=model,
         messages=[
             {
