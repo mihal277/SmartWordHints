@@ -38,5 +38,5 @@ OPENAI_API_KEY=<OPENAI_API_KEY> python verify_examples.py --input new_sentences.
 
 ### Verifying the correctness of the generated sentences (human)
 ```commandline
-python human_verification.py --input new_sentences_verified.csv --output new_sentences_verified_with_human_verification.csv --number_of_sentences 500
+python human_verification.py --input new_sentences_verified.csv --output human_verification.csv --number_of_sentences 700
 ```

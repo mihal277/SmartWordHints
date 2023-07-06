@@ -17,9 +17,16 @@ CheckResult = Literal["Correct", "Incorrect", "Error", "Not tried"]
 
 OUTPUT_PATH = "new_sentences_verified.csv"
 
-INPUT_HEADER = (
-    "index|lemma|human_readable_pos|definition|synset_key_name|example|new_sentence"
-)
+INPUT_FIELDS = [
+    "index",
+    "lemma",
+    "human_readable_pos",
+    "definition",
+    "synset_key_name",
+    "example",
+    "new_sentence",
+]
+INPUT_HEADER = "|".join(INPUT_FIELDS)
 
 OUTPUT_HEADER = INPUT_HEADER + "|" + "|".join(VERIFICATION_KEYS) + "\n"
 
@@ -52,58 +59,47 @@ def verify_with_gpt__disambiguate(
 ) -> CheckResult:
     pos = expected_synset.pos()
     human_readable_pos = WORDNET_POS__TO__HUMAN_READABLE_POS[pos]
-    prompt = f'The {human_readable_pos} "{lemma}" can have the following meanings:\n'
-    expected_synset_index = None
-    for i, possible_synset_for_lemma in enumerate(wn.synsets(lemma, pos), start=1):
-        if possible_synset_for_lemma == expected_synset:
-            expected_synset_index = i
-        prompt += f"{i}. {possible_synset_for_lemma.definition()}\n"
-    assert expected_synset_index is not None
-    prompt += (
-        f"Here's an example sentence:\n"
-        f"{sentence}\n"
-        f"Which of the meanings does the sentence use? Answer with number."
-    )
-    chat_gpt_response = get_single_response_from_chat_gpt(
-        gpt_prompt=prompt,
-        model="gpt-3.5-turbo",
-        system_message="You are an assistant that replies with a number.",
-        temperature=0,
-    )
-    matches = re.findall(r"\d+", chat_gpt_response)
-    if len(matches) != 1:
-        return "Error"
+    synsets_left = list(wn.synsets(lemma, pos))
+    while len(synsets_left) > 1:
+        prompt = (
+            f'The {human_readable_pos} "{lemma}" has among others these two meanings:\n'
+        )
+        synset1, synset2 = synsets_left[:2]
+        for i, synset in enumerate([synset1, synset2], start=1):
+            prompt += f"{i}. {synset.definition()}\n"
+            if len(synset.examples()) > 0:
+                prompt += f"Example for {i}: {synset.examples()[0]}\n"
+        prompt += "\n"
+        prompt += (
+            f'Here\'s a new sentence with {human_readable_pos} "{lemma}":\n'
+            f"{sentence}\n"
+            f"Which of the two meanings is more probable "
+            f"to be used in this sentence? Answer with number."
+        )
+        print(prompt)
+        chat_gpt_response = get_single_response_from_chat_gpt(
+            gpt_prompt=prompt,
+            model="gpt-3.5-turbo",
+            system_message="You are an assistant that replies with a number.",
+            temperature=0,
+        )
+        matches = re.findall(r"\d+", chat_gpt_response)
+        if len(matches) != 1:
+            return "Error"
 
-    if len(matches) == 1:
-        chosen_definition_index = int(matches[0])
-        if chosen_definition_index == expected_synset_index:
-            return "Correct"
-        return "Incorrect"
-    else:
-        return "Error"
+        if len(matches) == 1:
+            chosen_definition_index = int(matches[0])
+            if chosen_definition_index not in [1, 2]:
+                return "Error"
+            if chosen_definition_index == 1:
+                synsets_left = [synset1] + synsets_left[2:]
+            else:
+                synsets_left = [synset2] + synsets_left[2:]
 
-
-def verify_with_gpt__yes_or_no(
-    sentence: str, lemma: str, expected_synset: wn.synset
-) -> CheckResult:
-    human_readable_pos = WORDNET_POS__TO__HUMAN_READABLE_POS[expected_synset.pos()]
-    prompt = (
-        f"Here's an example sentence:\n"
-        f'"{sentence}"\n'
-        f'Does the {human_readable_pos} "{lemma}" in this sentence'
-        f'have the sense "{expected_synset.definition()}"? Answer Yes/No.'
-    )
-    chat_gpt_response = get_single_response_from_chat_gpt(
-        gpt_prompt=prompt,
-        model="gpt-3.5-turbo",
-        system_message="You are an assistant that responses either Yes or No.",
-    ).lower()
-
-    if "yes" in chat_gpt_response and "no" not in chat_gpt_response:
+    assert len(synsets_left) == 1
+    if synsets_left[0] == expected_synset:
         return "Correct"
-    if "no" in chat_gpt_response and "yes" not in chat_gpt_response:
-        return "Incorrect"
-    return "Error"
+    return "Incorrect"
 
 
 def example_actually_contains_exactly_one_lemma(
@@ -181,12 +177,8 @@ def verify_example(generated_example: dict) -> dict[str, CheckResult]:
         result["v__esr_large_score"] = esr_large_score
         result["v__esr_large_highest_score"] = highest_esr_large_score
 
-    if result["v__gpt35__disambiguate"] == NOT_TRIED:
-        result["v__gpt35__disambiguate"] = verify_with_gpt__disambiguate(
-            generated_sentence, lemma, expected_synset
-        )
-    if result["v__gpt35__verify"] == NOT_TRIED:
-        result["v__gpt35__verify"] = verify_with_gpt__yes_or_no(
+    if result["v__gpt35__disambiguate_v2"] == NOT_TRIED:
+        result["v__gpt35__disambiguate_v2"] = verify_with_gpt__disambiguate(
             generated_sentence, lemma, expected_synset
         )
 
@@ -203,8 +195,7 @@ def verify_example(generated_example: dict) -> dict[str, CheckResult]:
                 for key in [
                     "v__esr_base",
                     "v__esr_large",
-                    "v__gpt35__verify",
-                    "v__gpt35__disambiguate",
+                    "v__gpt35__disambiguate_v2",
                 ]
             ],
         )
@@ -248,7 +239,11 @@ def verify_examples(input_path: str, output_path: str, start_from_index: int) ->
             if number_of_esr_errors > 20:
                 raise ValueError
             result = {
-                **generated_example,
+                **{
+                    key: val
+                    for key, val in generated_example.items()
+                    if key in INPUT_FIELDS
+                },
                 **verification,
             }
             if "" in result:

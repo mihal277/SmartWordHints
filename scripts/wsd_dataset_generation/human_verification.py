@@ -6,6 +6,17 @@ from typing import Any
 
 from nltk.corpus import wordnet as wn
 
+OUTPUT_FIELDS = [
+    "index",
+    "lemma",
+    "human_readable_pos",
+    "definition",
+    "synset_key_name",
+    "example",
+    "new_sentence",
+    "v__human",
+]
+
 
 def load_input(input_path: str) -> list[dict[str, Any]]:
     with open(input_path, newline="", encoding="utf_8") as csvfile:
@@ -41,7 +52,7 @@ def verify_as_human(
     with open(output_path, "a", encoding="utf_8") as csvfile:
         writer = csv.DictWriter(
             csvfile,
-            fieldnames=[*input_data_only_not_done[0].keys(), verification_field_name],
+            fieldnames=OUTPUT_FIELDS,
             delimiter="|",
         )
         if len(already_done) == 0:
@@ -96,7 +107,11 @@ def verify_as_human(
                     number_done += 1
                     writer.writerow(
                         {
-                            **sentence_data,
+                            **{
+                                key: val
+                                for key, val in sentence_data.items()
+                                if key in OUTPUT_FIELDS
+                            },
                             verification_field_name: 1 if verification == "y" else 0,
                         }
                     )
