@@ -66,7 +66,9 @@ def delete_bad_rows(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def prepare_dataset(
-    input_path_ai_verification: str, input_path_human_verification: str | None
+    input_path_ai_verification: str,
+    input_path_human_verification: str | None,
+    columns_to_ignore: list[str] | None,
 ) -> pd.DataFrame:
     df_ai = pd.read_csv(input_path_ai_verification, delimiter="|")
     df_ai = delete_bad_rows(df_ai)
@@ -83,9 +85,12 @@ def prepare_dataset(
         print(
             "Num positive human verification:", len(df[df["v__human"] == 1]) / len(df)
         )
-        return df
     else:
-        return df_ai[[col for col in VERIFICATION_KEYS if col not in COLUMNS_TO_IGNORE]]
+        df = df_ai[[col for col in VERIFICATION_KEYS if col not in COLUMNS_TO_IGNORE]]
+
+    if columns_to_ignore:
+        df = df[[col for col in df.columns if col not in columns_to_ignore]]
+    return df
 
 
 def _get_model(model_name: str, random_state: int):
@@ -366,11 +371,9 @@ def get_model(
     min_score_for_secondary_metrics: float,
     columns_to_ignore: list[str],
 ) -> SVC:
-    dataset = prepare_dataset(input_path_ai_verification, input_path_human_verification)
-    if columns_to_ignore:
-        dataset = dataset[
-            [col for col in dataset.columns if col not in columns_to_ignore]
-        ]
+    dataset = prepare_dataset(
+        input_path_ai_verification, input_path_human_verification, columns_to_ignore
+    )
     return train(
         dataset,
         metric_to_prioritize=metric_to_prioritize,
@@ -384,6 +387,7 @@ def get_model(
 def choose_simple_or_majority_model(simple_model, majority_vote_model):
     if simple_model is None and majority_vote_model is None:
         print("No model found, finishing...")
+        return None
     if majority_vote_model is None:
         return simple_model
     else:
@@ -444,10 +448,20 @@ def main() -> None:
     )
 
     model = choose_simple_or_majority_model(simple_model, majority_vote_model)
-    dataset = prepare_dataset(args.input_ai_verification, None)
+    if model is None:
+        return
+
+    dataset = prepare_dataset(args.input_ai_verification, None, args.columns_to_ignore)
+    if args.use_normalizing:
+        scaler = Normalizer()
+        scaler.fit(dataset)
+        dataset = scaler.transform(dataset)
+
     y_pred = model.predict(dataset)
 
-    print(f"Positive examples ratio: {sum(y_pred)/len(y_pred)}")
+    print(
+        f"Positive examples {sum(y_pred)}, all examples: {len(y_pred)}, ratio: {sum(y_pred)/len(y_pred)}"
+    )
 
     output_df = pd.read_csv(args.input_ai_verification, delimiter="|")
     output_df = delete_bad_rows(output_df)
