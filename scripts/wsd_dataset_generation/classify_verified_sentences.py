@@ -35,7 +35,6 @@ from sklearn.preprocessing import Normalizer
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
-RELEVANT_COLUMNS = VERIFICATION_KEYS + ["v__human"]
 COLUMNS_TO_IGNORE = {"v__contains_lemma"}
 METRICS = [
     "gmean",
@@ -60,31 +59,33 @@ class ModelResult:
     oversampler_name: str
 
 
+def delete_bad_rows(df: pd.DataFrame) -> pd.DataFrame:
+    df = df[df["v__contains_lemma"] == "Correct"]
+    df = df[~df.isin(["Error"]).any(axis=1)]
+    return df
+
+
 def prepare_dataset(
-    input_path_ai_verification: str, input_path_human_verification: str
+    input_path_ai_verification: str, input_path_human_verification: str | None
 ) -> pd.DataFrame:
     df_ai = pd.read_csv(input_path_ai_verification, delimiter="|")
-    df_human = pd.read_csv(
-        input_path_human_verification, delimiter="|", usecols=["index", "v__human"]
-    )
-
-    df_ai = df_ai[df_ai["v__contains_lemma"] == "Correct"]
-
-    df_ai = df_ai[~df_ai.isin(["Error"]).any(axis=1)]
-
+    df_ai = delete_bad_rows(df_ai)
     df_ai = df_ai.replace("Correct", 1)
     df_ai = df_ai.replace("Incorrect", 0)
 
-    df = pd.merge(df_ai, df_human, on="index", how="inner")
-
-    relevant_columns = [col for col in RELEVANT_COLUMNS if col not in COLUMNS_TO_IGNORE]
-    df = df[relevant_columns]
-
-    # print(f"Columns: {df.columns}")
-    # print(df)
-    print("Num positive human verification:", len(df[df["v__human"] == 1]) / len(df))
-
-    return df
+    if input_path_human_verification is not None:
+        df_human = pd.read_csv(
+            input_path_human_verification, delimiter="|", usecols=["index", "v__human"]
+        )
+        df = pd.merge(df_ai, df_human, on="index", how="inner")
+        relevant_columns = VERIFICATION_KEYS + ["v__human"]
+        df = df[[col for col in relevant_columns if col not in COLUMNS_TO_IGNORE]]
+        print(
+            "Num positive human verification:", len(df[df["v__human"] == 1]) / len(df)
+        )
+        return df
+    else:
+        return df_ai[[col for col in VERIFICATION_KEYS if col not in COLUMNS_TO_IGNORE]]
 
 
 def _get_model(model_name: str, random_state: int):
@@ -157,6 +158,8 @@ def get_majority_voting_model(
 
 def test(X_test, y_test, model, do_print: bool = True):
     y_pred = model.predict(X_test)
+    print("gold: ", [y for y in y_test])
+    print("pred: ", [y for y in y_pred])
     if do_print:
         for metric in METRICS:
             score = get_metric(y_test, y_pred, metric)
@@ -196,6 +199,7 @@ def train(
     secondary_metrics: list[str],
     min_score_for_secondary_metrics: float,
     use_normalizing: bool = True,
+    train_voting_model: bool = True,
 ) -> Any:
     random_state = 42
 
@@ -286,8 +290,6 @@ def train(
         best_oversampler_name = models_sorted_by_prioritized_metrics[0].oversampler_name
 
     print("best model:")
-    print("gold: ", [y for y in y_test])
-    print("pred: ", [y for y in y_pred])
     print(f"Best model: {best_model_name}")
     print(f"Best oversampler: {best_oversampler_name}")
     if best_model_name == "logistic_regression":
@@ -308,6 +310,9 @@ def train(
     #     test(X_scaled, y, best_model)
     # else:
     #     test(X, y, best_model)
+
+    if not train_voting_model:
+        return best_model, None
 
     best_metric_majority = 0.0
     best_majority = None
@@ -354,25 +359,54 @@ def train(
 def get_model(
     input_path_ai_verification: str,
     input_path_human_verification: str,
-    use_normalizing: True,
+    use_normalizing: bool,
+    train_voting_model: bool,
     metric_to_prioritize: str,
     secondary_metrics: list[str],
     min_score_for_secondary_metrics: float,
+    columns_to_ignore: list[str],
 ) -> SVC:
+    dataset = prepare_dataset(input_path_ai_verification, input_path_human_verification)
+    if columns_to_ignore:
+        dataset = dataset[
+            [col for col in dataset.columns if col not in columns_to_ignore]
+        ]
     return train(
-        prepare_dataset(input_path_ai_verification, input_path_human_verification),
+        dataset,
         metric_to_prioritize=metric_to_prioritize,
         use_normalizing=use_normalizing,
+        train_voting_model=train_voting_model,
         secondary_metrics=secondary_metrics,
         min_score_for_secondary_metrics=min_score_for_secondary_metrics,
     )
+
+
+def choose_simple_or_majority_model(simple_model, majority_vote_model):
+    if simple_model is None and majority_vote_model is None:
+        print("No model found, finishing...")
+    if majority_vote_model is None:
+        return simple_model
+    else:
+        while True:
+            result = str(input("1 for simple model, 2 for majority voting model: "))
+            if result == "1":
+                return simple_model
+            elif result == "2":
+                return majority_vote_model
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_ai_verification", type=str, required=True)
     parser.add_argument("--input_human_verification", type=str, required=True)
-    parser.add_argument("--use_normalizing", type=bool, required=False, default=True)
+    parser.add_argument("--output_path", type=str, required=True)
+    parser.add_argument("--use_normalizing", action=argparse.BooleanOptionalAction)
+    parser.add_argument(
+        "--train_voting_model", action=argparse.BooleanOptionalAction, default=False
+    )
+    parser.add_argument(
+        "--output_only_positive_examples", action=argparse.BooleanOptionalAction
+    )
     parser.add_argument(
         "--metric_to_prioritize",
         type=str,
@@ -389,15 +423,39 @@ def main() -> None:
     parser.add_argument(
         "--min_score_for_secondary_metrics", type=float, required=False, default=0.0
     )
-    args = parser.parse_args()
-    model, majority_vote_model = get_model(
-        args.input_ai_verification,
-        args.input_human_verification,
-        args.use_normalizing,
-        args.metric_to_prioritize,
-        args.secondary_metrics,
-        args.min_score_for_secondary_metrics,
+    parser.add_argument(
+        "--columns_to_ignore",
+        type=str,
+        nargs="+",
+        required=False,
+        choices=VERIFICATION_KEYS,
     )
+    args = parser.parse_args()
+
+    simple_model, majority_vote_model = get_model(
+        input_path_ai_verification=args.input_ai_verification,
+        input_path_human_verification=args.input_human_verification,
+        use_normalizing=args.use_normalizing,
+        train_voting_model=args.train_voting_model,
+        metric_to_prioritize=args.metric_to_prioritize,
+        secondary_metrics=args.secondary_metrics,
+        min_score_for_secondary_metrics=args.min_score_for_secondary_metrics,
+        columns_to_ignore=args.columns_to_ignore,
+    )
+
+    model = choose_simple_or_majority_model(simple_model, majority_vote_model)
+    dataset = prepare_dataset(args.input_ai_verification, None)
+    y_pred = model.predict(dataset)
+
+    print(f"Positive examples ratio: {sum(y_pred)/len(y_pred)}")
+
+    output_df = pd.read_csv(args.input_ai_verification, delimiter="|")
+    output_df = delete_bad_rows(output_df)
+    output_df["v__final_classification"] = y_pred
+    if args.output_only_positive_examples:
+        output_df = output_df[output_df["v__final_classification"] == 1]
+        output_df = output_df.drop(columns=["v__final_classification"])
+    output_df.to_csv(args.output_path, sep="|", index=False)
 
 
 if __name__ == "__main__":
