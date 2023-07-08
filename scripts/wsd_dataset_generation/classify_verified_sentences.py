@@ -471,6 +471,17 @@ def main() -> None:
         output_df = output_df.drop(columns=["v__final_classification"])
     output_df.to_csv(args.output_path, sep="|", index=False)
 
+    # sanity check: run test on human-verified subset
+    # print("Sanity check!")
+    # dataset = prepare_dataset(args.input_ai_verification, args.input_human_verification, args.columns_to_ignore)
+    # if args.use_normalizing:
+    #     scaler = Normalizer()
+    #     scaler.fit(dataset)
+    #     dataset = scaler.transform(dataset)
+    # X = dataset.iloc[:, :-1]
+    # y = dataset.iloc[:, -1]
+    # test(X, y,model)
+
 
 if __name__ == "__main__":
     main()

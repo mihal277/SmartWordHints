@@ -43,6 +43,5 @@ python human_verification.py --input new_sentences_verified.csv --output human_v
 
 ### Making a final classification of generated sentences
 ```commandline
-python classify_verified_sentences.py --input_ai_verification new_sentences_verified.csv --input_hum
-an_verification human_verification.csv --no-use_normalizing --no-train_voting_model --metric_to_prioritize precision --secondary_metrics number_of_examples_used --min_score_for_secondary_metrics 0.6 --output_path classified__max_precision.csv
+python classify_verified_sentences.py --input_ai_verification new_sentences_verified.csv --input_human_verification human_verification.csv --no-use_normalizing --train_voting_model --metric_to_prioritize precision --secondary_metrics number_of_examples_used --min_score_for_secondary_metrics 0.6 --output_path classified__max_precision.csv
 ```
