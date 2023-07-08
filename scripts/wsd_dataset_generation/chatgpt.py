@@ -2,13 +2,20 @@ import logging
 
 import backoff
 from openai import ChatCompletion
-from openai.error import APIError, ServiceUnavailableError, Timeout, TryAgain
+from openai.error import (
+    APIConnectionError,
+    APIError,
+    ServiceUnavailableError,
+    Timeout,
+    TryAgain,
+)
 
 logging.getLogger("backoff").addHandler(logging.StreamHandler())
 
 
 @backoff.on_exception(
-    backoff.expo, (APIError, TryAgain, Timeout, ServiceUnavailableError)
+    backoff.expo,
+    (APIError, TryAgain, Timeout, ServiceUnavailableError, APIConnectionError),
 )
 def get_single_response_from_chat_gpt(
     gpt_prompt: str,
