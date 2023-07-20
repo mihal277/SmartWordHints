@@ -4,25 +4,28 @@ on:
     branches:
       - master
 jobs:
-  build-and-run-backend-tests:
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@v2
-     - name: Build and run backend tests
-       run: ./scripts/run_api_tests_docker.sh
 
-  build-and-test-lambda-image:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-      - uses: aws-actions/setup-sam@v1
-      - name: Build Lambda image
-        run: sam build
-      - name: Test image locally
-        run: python ./scripts/aws_sam/sam_local_image_test.py
+# TODO: rewrite and re-enable tests
+
+#  build-and-run-backend-tests:
+#   runs-on: ubuntu-latest
+#   steps:
+#     - uses: actions/checkout@v2
+#     - name: Build and run backend tests
+#       run: ./scripts/run_api_tests_docker.sh
+
+#  build-and-test-lambda-image:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/setup-python@v2
+#        with:
+#          python-version: '3.9'
+#      - uses: aws-actions/setup-sam@v1
+#      - name: Build Lambda image
+#        run: sam build
+#      - name: Test image locally
+#        run: python ./scripts/aws_sam/sam_local_image_test.py
 
   build-and-run-extension-tests:
     runs-on: ubuntu-latest

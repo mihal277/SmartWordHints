@@ -1,10 +1,11 @@
 fastapi
 uvicorn
 nltk>=3.6.6
-spacy<3.2.0
-https://github.com/mihal277/pywsd/archive/refs/heads/load-signatures-from-json.zip
-wn==0.0.23
-  # this version is required by pywsd but pip-compile installs the newest one
+spacy
+typing_extensions<4.6.0
+  # https://github.com/explosion/spaCy/issues/12659
+transformers
+torch
 mangum
 lambda-warmer-py
 boto3

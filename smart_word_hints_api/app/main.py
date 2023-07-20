@@ -36,11 +36,6 @@ app.add_middleware(
 class HintsOptions(BaseModel):
     text_language: Optional[str] = EN
     hints_language: Optional[str] = EN
-    difficulty: Optional[int] = Field(
-        default=1000,
-        description="Only show hints for words less common than this number",
-        ge=0,
-    )
     avoid_repetitions: Optional[bool] = Field(
         default=True,
         description="Specifies if repeating the same hints should be avoided",
@@ -68,7 +63,6 @@ en_to_en_hints_provider = EnglishToEnglishHintsProvider()
 def get_hints(request_body: WordHintsRequest):
     hints = en_to_en_hints_provider.get_hints(
         request_body.text,
-        request_body.options.difficulty,  # type: ignore
         request_body.options.avoid_repetitions,  # type: ignore
     )
     return {"hints": [dataclasses.asdict(hint) for hint in hints]}
