@@ -91,7 +91,7 @@ def test_word_definitions_shortening__parenthesis_in_the_middle__shorten_set_to_
 )
 def test_get_shortened_definition(definition, shortened_definition):
     assert (
-        DefinitionProviderEN.get_shortened_definition(definition)
+        DefinitionProviderEN._get_shortened_definition(definition)
         == shortened_definition
     )
 

@@ -45,6 +45,12 @@ class TokenWrapper:
     def is_verb(self):
         return self.pos == UNIVERSAL_POS_VERB
 
+    def is_sent_start(self):
+        return self.raw_token.is_sent_start
+
+    def is_sent_end(self):
+        return self.raw_token.is_sent_end
+
 
 class PhrasalVerbError(Exception):
     pass
@@ -92,9 +98,9 @@ class TokenEN(TokenWrapper):
         return self.dep == "prt" and self.head.pos == UNIVERSAL_POS_VERB
 
     def is_phrasal_verb_preposition(self) -> bool:
+        # note: self.dep is not necessarily "prep"
         return (
-            self.dep == "prep"
-            and self.head.pos == UNIVERSAL_POS_VERB
+            self.head.pos == UNIVERSAL_POS_VERB
             and self._is_on_list_of_phrasal_verbs_with_preposition()
             and self._comes_right_after_verb_or_particle()
         )
@@ -140,7 +146,9 @@ class TokenEN(TokenWrapper):
             self._phrasal_verb_preposition_token = preposition_token
 
     def is_translatable(self) -> bool:
-        return self.tag in TRANSLATABLE_EN_POS
+        return (
+            self.tag in TRANSLATABLE_EN_POS and not self.is_phrasal_verb_prt_or_prep()
+        )
 
     @property
     def pos_simple(self) -> str:

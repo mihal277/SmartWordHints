@@ -1,12 +1,13 @@
-from dataclasses import dataclass
-from typing import Optional
+from __future__ import annotations
 
+from dataclasses import dataclass
+
+from smart_word_hints_api.app.config import config
+from smart_word_hints_api.app.constants import CONFIG_KEY_MODEL_NAME
 from smart_word_hints_api.app.definitions import DefinitionProviderEN
-from smart_word_hints_api.app.difficulty_rankings import (
-    DifficultyRanking,
-    DifficultyRankingEN,
-)
-from smart_word_hints_api.app.text_holder import TextHolderEN, TokenEN
+from smart_word_hints_api.app.difficulty_rankings import DifficultyRankingEN
+from smart_word_hints_api.app.esr_sense_provider import ESRSenseProvider
+from smart_word_hints_api.app.text_holder import TextHolderEN
 
 
 @dataclass(frozen=True)
@@ -14,69 +15,66 @@ class Hint:
     word: str
     start_position: int
     end_position: int
-    ranking: int
     definition: str
     part_of_speech: str
+    difficulty_ranking: int
+    wordnet_sense: str
 
 
 class EnglishToEnglishHintsProvider:
-    def __init__(self, difficulty_ranking: DifficultyRanking = None):
-        self.difficulty_ranking = difficulty_ranking or DifficultyRankingEN()
+    def __init__(self):
+        self.difficulty_ranking = DifficultyRankingEN()
+        self.sense_provider = ESRSenseProvider(config.get(CONFIG_KEY_MODEL_NAME))
         self.definitions_provider = DefinitionProviderEN(self.difficulty_ranking)
 
-    def _get_hint(
-        self, token: TokenEN, text: TextHolderEN, difficulty: int
-    ) -> Optional[Hint]:
-        ranking = self.difficulty_ranking[token.lemma.lower()]
-        definition = self.definitions_provider.get_definition(token, text, difficulty)
-        if definition is None:
-            return None
-        return Hint(
-            word=token.text_extended,
-            start_position=token.start_position,
-            end_position=token.end_position,
-            ranking=ranking,
-            definition=definition,
-            part_of_speech=token.tag,
+    def get_hints(self, text: str, avoid_repetitions: bool = True) -> list[Hint]:
+        text_holder = TextHolderEN(text, flag_phrasal_verbs=True)
+
+        token_indexes_to_disambiguate = []
+        for i, token in enumerate(text_holder.tokens):
+            if token.is_translatable():
+                token_indexes_to_disambiguate.append(i)
+
+        token_i__to__sense_key: dict[i, str] = self.sense_provider.get_sense_keys(
+            text_holder, token_indexes_to_disambiguate
         )
+        hints: list[Hint] = self._get_hints(text_holder, token_i__to__sense_key)
+
+        if avoid_repetitions:
+            hints = self._deduplicate_hints(hints)
+
+        return hints
+
+    def _get_hints(
+        self, text_holder: TextHolderEN, token_i__to__sense_key: dict[int, str]
+    ) -> list[Hint]:
+        hints = []
+        for token_i, token in enumerate(text_holder.tokens):
+            if token_i not in token_i__to__sense_key:
+                continue
+            sense_key = token_i__to__sense_key[token_i]
+            difficulty_ranking = self.difficulty_ranking.get_ranking_score(
+                sense_key, token.lemma, token.pos_simple
+            )
+            definition = self.definitions_provider.get_definition(token, sense_key)
+            hint = Hint(
+                word=token.text_extended,
+                start_position=token.start_position,
+                end_position=token.end_position,
+                definition=definition,
+                part_of_speech=token.tag,
+                difficulty_ranking=difficulty_ranking,
+                wordnet_sense=sense_key,
+            )
+            hints.append(hint)
+        return hints
 
     @staticmethod
-    def _would_be_a_repetition(
-        token: TokenEN, already_hinted: set[tuple[str, str]]
-    ) -> bool:
-        return (token.lemma, token.tag) in already_hinted
-
-    def _should_skip(
-        self,
-        token: TokenEN,
-        already_hinted: set[tuple[str, str]],
-        avoid_repetitions: bool,
-        difficulty: int,
-    ) -> bool:
-        if not token.is_translatable():
-            return True
-        if avoid_repetitions and self._would_be_a_repetition(token, already_hinted):
-            return True
-        difficulty_result = self.difficulty_ranking.check(
-            token.lemma.lower(), difficulty
-        )
-        if difficulty_result.easy_or_unknown():
-            return True
-        return False
-
-    def get_hints(
-        self, article: str, difficulty: int, avoid_repetitions: bool = True
-    ) -> list[Hint]:
-        text = TextHolderEN(article, flag_phrasal_verbs=True)
-        hints = []
-        already_hinted_lemma_tag_set: set[tuple[str, str]] = set()
-        for token in text.tokens:
-            if self._should_skip(
-                token, already_hinted_lemma_tag_set, avoid_repetitions, difficulty
-            ):
-                continue
-            hint = self._get_hint(token, text, difficulty)
-            if hint is not None:
-                hints.append(hint)
-                already_hinted_lemma_tag_set.add((token.lemma, token.tag))
-        return hints
+    def _deduplicate_hints(hints: list[Hint]) -> list[Hint]:
+        deduplicated: list[Hint] = []
+        already_used_senses: set[str] = set()
+        for hint in hints:
+            if hint.wordnet_sense not in already_used_senses:
+                deduplicated.append(hint)
+            already_used_senses.add(hint.wordnet_sense)
+        return deduplicated

@@ -1,5 +1,8 @@
 FROM tiangolo/uvicorn-gunicorn:python3.9-slim-2021-10-02
 
+RUN apt-get update && apt-get install git -y
+RUN git clone https://github.com/mihal277/esr.git -b replace-getchildren /app/smart_word_hints_api/app
+
 RUN useradd --create-home -u 5002 smart_word_hints_api
 USER smart_word_hints_api
 
@@ -16,6 +19,7 @@ RUN pip install --no-cache-dir --user -r /tmp/requirements.txt
 RUN python -m nltk.downloader $(cat /tmp/nltk_modules.txt)
 RUN python -m spacy download $(cat /tmp/spacy_modules.txt)
 
+# TODO: attach model as volume without copying
 COPY ./app /app/smart_word_hints_api/app
 COPY ./config.ini /app/smart_word_hints_api/config.ini
 COPY ./__init__.py /app/smart_word_hints_api/__init__.py

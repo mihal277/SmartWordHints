@@ -1,3 +1,6 @@
+# Custom
+smart_word_hints_api/app/esr
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
