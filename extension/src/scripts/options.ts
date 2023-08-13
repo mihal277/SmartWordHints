@@ -41,12 +41,19 @@ function requestPermissionsIfNeeded(url: string): void {
 
 function saveOptions(): void {
   const serverUrlInput = document.getElementById('server-url-input') as HTMLInputElement;
+  const difficultyInput = document.getElementById('difficulty-input') as HTMLInputElement;
+
   const url = serverUrlInput.value;
-  if (!isValidUrl(url)) alert('Incorrect url');
-  else {
-    browser.storage.sync.set({ api_url: url });
-    requestPermissionsIfNeeded(url);
+  const difficulty = difficultyInput.value;
+
+  if (!isValidUrl(url)) {
+    /* eslint-disable no-alert */
+    alert('Incorrect url');
+    return;
   }
+
+  browser.storage.sync.set({ api_url: url, difficulty });
+  requestPermissionsIfNeeded(url);
 }
 
 function restoreOptions(): void {

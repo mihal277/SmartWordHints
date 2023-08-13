@@ -35,7 +35,6 @@
     {
       "matches": ["<all_urls>"],
       "js": ["scripts/main.js"],
-      "css": ["overlay.css"],
       "run_at": "document_idle"
     }
   ],
@@ -46,7 +45,6 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["overlay.html"],
       "matches": ["<all_urls>"]
     }
   ],

@@ -1,0 +1,58 @@
+{
+    "hints": [
+      {
+        "word": "Sanskrit",
+        "start_position": 8,
+        "end_position": 16,
+        "definition": "an ancient language of India",
+        "part_of_speech": "NNP",
+        "difficulty_ranking": null,
+        "wordnet_sense": "sanskrit%1:10:00::"
+      },
+      {
+        "word": "romanized",
+        "start_position": 24,
+        "end_position": 33,
+        "definition": "write using the English alphabet",
+        "part_of_speech": "VBD",
+        "difficulty_ranking": 32770,
+        "wordnet_sense": "romanize%2:32:00::"
+      },
+      {
+        "word": "is",
+        "start_position": 43,
+        "end_position": 45,
+        "definition": "equal; same as",
+        "part_of_speech": "VBZ",
+        "difficulty_ranking": 208,
+        "wordnet_sense": "be%2:42:06::"
+      },
+      {
+        "word": "character",
+        "start_position": 48,
+        "end_position": 57,
+        "definition": "a person in a story",
+        "part_of_speech": "NN",
+        "difficulty_ranking": 793,
+        "wordnet_sense": "character%1:18:02::"
+      },
+      {
+        "word": "Hindu",
+        "start_position": 61,
+        "end_position": 66,
+        "definition": "a person who adheres to Hinduism",
+        "part_of_speech": "NNP",
+        "difficulty_ranking": 12396,
+        "wordnet_sense": "hindu%1:18:01::"
+      },
+      {
+        "word": "mythology",
+        "start_position": 67,
+        "end_position": 76,
+        "definition": "Myths: traditional stories about gods, heroes, and events",
+        "part_of_speech": "NN",
+        "difficulty_ranking": 15167,
+        "wordnet_sense": "mythology%1:14:00::"
+      }
+    ]
+  }

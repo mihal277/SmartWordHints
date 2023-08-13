@@ -1,15 +1,16 @@
 import browser from 'webextension-polyfill';
 
-import { DEFAULT_API_URL, EXTENSION_ICON_CLICKED_COMMAND, IS_FIREFOX } from './constants';
-
-function setDefaultURL(): void {
-  browser.storage.sync.set({ api_url: DEFAULT_API_URL });
-}
+import {
+  DEFAULT_API_URL, DEFAULT_DIFFICULTY, EXTENSION_ICON_CLICKED_COMMAND, IS_FIREFOX,
+} from './constants';
 
 function initOptions(): void {
-  const apiUrl = browser.storage.sync.get('api_url');
-  apiUrl.then(
-    (results: any) => (!('api_url' in results) ? setDefaultURL() : {}),
+  browser.storage.sync.get(['api_url', 'difficulty']).then(
+    (options: Record<string, any>) => {
+      const apiUrl = options.api_url || DEFAULT_API_URL;
+      const difficulty = options.difficulty || DEFAULT_DIFFICULTY;
+      browser.storage.sync.set({ api_url: apiUrl, difficulty });
+    },
   );
 }
 initOptions();
@@ -18,6 +19,7 @@ function startSmartWordHints(tab: browser.Tabs.Tab): void {
   browser.tabs
     .sendMessage(tab.id, { command: EXTENSION_ICON_CLICKED_COMMAND })
     .catch((error: Error) => {
+      /* eslint-disable no-console */
       console.error(`Error starting smart word hints: ${error}`);
     });
 }

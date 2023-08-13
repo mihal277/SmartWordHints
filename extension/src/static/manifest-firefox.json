@@ -41,7 +41,6 @@
     {
       "matches": ["<all_urls>"],
       "js": ["scripts/main.js"],
-      "css": ["overlay.css"],
       "run_at": "document_idle"
     }
   ],
@@ -50,8 +49,6 @@
     "scripts": ["scripts/background.js"],
     "persistent": false
   },
-
-  "web_accessible_resources": ["overlay.html"],
 
   "homepage_url": "https://github.com/mihal277/SmartWordHints"
 }
