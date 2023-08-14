@@ -72,8 +72,3 @@ To run tests in Docker:
 ```
 ./scripts/run_api_tests_docker.sh
 ```
-
-To make sure tests are automatically run before push:
-```
-git config core.hooksPath hooks/
-```
