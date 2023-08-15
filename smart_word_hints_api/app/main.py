@@ -60,7 +60,7 @@ en_to_en_hints_provider = EnglishToEnglishHintsProvider()
 
 @app.post(f"/api/v{MAJOR_VERSION}/get_hints")
 @app.post("/api/latest/get_hints")
-def get_hints(request_body: WordHintsRequest):
+async def get_hints(request_body: WordHintsRequest):
     hints = en_to_en_hints_provider.get_hints(
         request_body.text,
         request_body.options.avoid_repetitions,  # type: ignore
