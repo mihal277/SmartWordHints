@@ -6,6 +6,7 @@ from spacy.tokens.token import Token
 
 from smart_word_hints_api.app.constants import (
     LEMMATIZABLE_EN_POS_TO_POS_SIMPLE,
+    PROPER_NOUN_POS,
     TRANSLATABLE_EN_POS,
     UNIVERSAL_POS_VERB,
 )
@@ -122,6 +123,76 @@ class TokenEN(TokenWrapper):
             raise PhrasalVerbError("Not a phrasal base verb")
         return self._phrasal_verb_particle_token  # type: ignore
 
+    def _has_both_prt_and_prep(self) -> bool:
+        return (
+            self._phrasal_verb_particle_token is not None
+            and self._phrasal_verb_preposition_token is not None
+        )
+
+    def _has_prep_but_no_prt(self) -> bool:
+        return (
+            self._phrasal_verb_preposition_token is not None
+            and self._phrasal_verb_particle_token is None
+        )
+
+    def _is_contiguous_verb_prt_prep(self) -> bool:
+        return (
+            self._has_both_prt_and_prep()
+            and self._phrasal_verb_particle_token.i == self.i + 1
+            and self._phrasal_verb_preposition_token.i
+            == self._phrasal_verb_particle_token.i + 1
+        )
+
+    def _is_contiguous_verb_prt_with_no_prep(self) -> bool:
+        return (
+            self._phrasal_verb_particle_token is not None
+            and self._phrasal_verb_particle_token.i == self.i + 1
+            and self._phrasal_verb_preposition_token is None
+        )
+
+    def _is_contiguous_verb_prt_with_non_contiguous_prep(self) -> bool:
+        return (
+            self._has_both_prt_and_prep()
+            and self._phrasal_verb_particle_token.i == self.i + 1
+            and self._phrasal_verb_preposition_token.i
+            > self._phrasal_verb_particle_token.i + 1
+        )
+
+    def _is_contiguous_verb_prep_with_no_prt(self) -> bool:
+        return (
+            self._has_prep_but_no_prt()
+            and self._phrasal_verb_preposition_token.i == self.i + 1
+        )
+
+    def _is_contiguous_phrasal_verb(self) -> bool:
+        return (
+            self._is_contiguous_verb_prt_prep()
+            or self._is_contiguous_verb_prt_with_no_prep()
+            or self._is_contiguous_verb_prep_with_no_prt()
+        )
+
+    def is_non_contiguous_phrasal_verb(self) -> bool:
+        return not self._is_contiguous_phrasal_verb()
+
+    @property
+    def end_position_extended(self) -> int:
+        if not self.was_phrasal_verb_flagging_run():
+            raise PhrasalVerbError("Phrasal verb flagging not run")
+
+        if not self.is_phrasal_base_verb():
+            return self.end_position
+
+        if self._is_contiguous_verb_prt_with_no_prep():
+            return self._phrasal_verb_particle_token.end_position
+        if self._is_contiguous_verb_prep_with_no_prt():
+            return self._phrasal_verb_preposition_token.end_position
+        if self._is_contiguous_verb_prt_prep():
+            return self._phrasal_verb_preposition_token.end_position
+        if self._is_contiguous_verb_prt_with_non_contiguous_prep():
+            return self._phrasal_verb_particle_token.end_position
+
+        return self.end_position
+
     @property
     def preposition_token(self) -> TokenEN:
         if not self.is_phrasal_base_verb():
@@ -145,9 +216,14 @@ class TokenEN(TokenWrapper):
         if preposition_token is not None:
             self._phrasal_verb_preposition_token = preposition_token
 
+    def _is_proper_noun(self):
+        return self.pos == PROPER_NOUN_POS
+
     def is_translatable(self) -> bool:
         return (
-            self.tag in TRANSLATABLE_EN_POS and not self.is_phrasal_verb_prt_or_prep()
+            self.tag in TRANSLATABLE_EN_POS
+            and not self.is_phrasal_verb_prt_or_prep()
+            and not self._is_proper_noun()
         )
 
     @property
