@@ -33,16 +33,18 @@ class DefinitionProviderEN:
         self,
         token: TokenEN,
         token_sense_key: str,
-        add_prefix_if_phrasal_verb: bool = True,
+        add_prefix_if_non_contiguous_phrasal_verb: bool = True,
     ) -> Optional[str]:
         definitions: Definitions = self.sense_key__to__definitions.get(token_sense_key)
         if definitions is not None:
             return self._postprocess_definition(
-                token, definitions["simplified"], add_prefix_if_phrasal_verb
+                token,
+                definitions["simplified"],
+                add_prefix_if_non_contiguous_phrasal_verb,
             )
 
         return self._get_definition_using_wordnet(
-            token, token_sense_key, add_prefix_if_phrasal_verb
+            token, token_sense_key, add_prefix_if_non_contiguous_phrasal_verb
         )
 
     def _load_sense_key__to__definitions_mapping(self) -> dict[str, Definitions]:
@@ -106,8 +108,15 @@ class DefinitionProviderEN:
         return without_subtext_after_semicolon.strip()
 
     def _postprocess_definition(
-        self, token: TokenEN, definition: str, add_prefix_if_phrasal_verb: bool
+        self,
+        token: TokenEN,
+        definition: str,
+        add_prefix_if_non_contiguous_phrasal_verb: bool,
     ) -> str:
-        if add_prefix_if_phrasal_verb and token.is_phrasal_base_verb():
+        if (
+            add_prefix_if_non_contiguous_phrasal_verb
+            and token.is_phrasal_base_verb()
+            and token.is_non_contiguous_phrasal_verb()
+        ):
             return f"{token.lemma_extended} = {definition}"
         return definition

@@ -60,7 +60,7 @@ class EnglishToEnglishHintsProvider:
             hint = Hint(
                 word=token.text_extended,
                 start_position=token.start_position,
-                end_position=token.end_position,
+                end_position=token.end_position_extended,
                 definition=definition,
                 part_of_speech=token.tag,
                 difficulty_ranking=difficulty_ranking,
