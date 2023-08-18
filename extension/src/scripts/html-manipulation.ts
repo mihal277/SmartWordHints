@@ -61,9 +61,9 @@ export default function getOuterHTMLUpdatedWithHints(
       textToHTMLMapping[hint.start_position],
       textToHTMLMapping[hint.end_position - 1] + 1,
     );
-    updatedOuterHTML += `<ruby>${
+    updatedOuterHTML += `<ruby><b>${
       snippetToShowDefinitionFor
-    }<rp>(</rp>`
+    }</b><rp>(</rp>`
     + `<rt style="font-size:0.8em">${hint.definition}</rt>`
     + '<rp>)</rp>'
     + '</ruby>';

@@ -1,0 +1,78 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Readable Paragraph</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 3.0;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: inline-block;
+            position: relative;
+            white-space: nowrap; /* Prevent the short text from wrapping */
+        }
+
+        ruby {
+            position: relative;
+            ruby-position: under;
+            width:100%;
+            
+        }
+
+        rt {
+            position: absolute;
+            top: -1em; /* Adjust this value as needed */
+            white-space: nowrap; /* Prevent long ruby from wrapping */
+            left: 0;
+            text-align: center;
+            width: inherit;
+            /* bottom: 100%; */
+        }
+
+        .overlapping-rt {
+            top: -2em; /* Adjust this value for overlapping rt elements */
+        }
+
+        rp {
+            display: none; /* Hide parentheses used by older browsers */
+        }
+
+
+        
+    </style>
+</head>
+<body>
+    <p><div class="ruby-container">
+        </div></p>
+
+    <script>
+        window.addEventListener("load", function() {
+            adjustOverlappingRt();
+        });
+
+        function adjustOverlappingRt() {
+            const rtElements = document.querySelectorAll("rt");
+            const rtRects = Array.from(rtElements).map(rt => rt.getBoundingClientRect());
+            let wasPreviousRaised = false;
+            let isPreviousLongDefinition = (rtElements[0].textContent.length > 15);
+            for (let i = 1; i < rtRects.length; i++) {
+                if (!wasPreviousRaised && isPreviousLongDefinition && (rtRects[i].top == rtRects[i-1].top) && (rtRects[i].left - rtRects[i-1].right) < 150) {
+                    rtElements[i-1].classList.add("overlapping-rt");
+                    wasPreviousRaised = true;
+                } else {
+                    wasPreviousRaised = false;
+                }
+                isPreviousLongDefinition = (rtElements[i].textContent.length > 10);
+            }
+        }
+
+    </script>
+
+
+</body></html>
